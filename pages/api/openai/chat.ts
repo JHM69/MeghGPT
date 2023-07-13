@@ -10,8 +10,8 @@ if (!process.env.OPENAI_API_KEY)
 // helper functions
 
 const checks: Record<string, string> = {
-  story: `Write a kids' story about a message and develop an HTML page using only the <br>, <b>, <i> tags. The story will have different sections. each section will contain a image. each section where image will be placed add [image prompt goes here], example: [A green frog in a lake]. Note that the story should not exceed 300 words
-    Your output will must in JSON formatted: Example
+  story: `Write a kids' story about a message and develop an HTML page using only the <br>, <b>, <i> tags. dont use \n. The story will have different sections. each section will contain a image. each section where image will be placed in third brackets, example: [A green frog in a lake]. Note that the story should not exceed 300 words
+    Your output will must in JSON formatted: Example-
 
     {content: "
       Story Content started.......
