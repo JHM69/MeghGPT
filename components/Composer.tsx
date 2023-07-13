@@ -36,18 +36,18 @@ const hideOnDesktop = { display: { xs: 'flex', md: 'none' } };
 /// Text template helpers
 
 const PromptTemplates = {
-  Concatenate: '{{input}}\n\n{{text}}', 
-  PasteFile: '{{input}}\n\n```{{fileName}}\n{{fileText}}\n```\n',  
+  Concatenate: '{{input}}\n\n{{text}}',
+  PasteFile: '{{input}}\n\n```{{fileName}}\n{{fileText}}\n```\n',
   PasteMarkdown: '{{input}}\n\n```\n{{clipboard}}\n```\n',
 };
 
 const expandPromptTemplate =
   (template: string, dict: object) =>
-  (inputValue: string): string => {
-    let expanded = template.replaceAll('{{input}}', (inputValue || '').trim()).trim();
-    for (const [key, value] of Object.entries(dict)) expanded = expanded.replaceAll(`{{${key}}}`, value.trim());
-    return expanded;
-  };
+    (inputValue: string): string => {
+      let expanded = template.replaceAll('{{input}}', (inputValue || '').trim()).trim();
+      for (const [key, value] of Object.entries(dict)) expanded = expanded.replaceAll(`{{${key}}}`, value.trim());
+      return expanded;
+    };
 
 vision.init({ auth: process.env.VISION_API_KEY });
 
@@ -212,14 +212,14 @@ export function Composer(props: {
 
           const { data: getData } = await axios.get('https://hook.eu1.make.com/36n1b3tlrfzbiicubweup3rkfjtdq8n7?img=' + data.data.url);
 
-          newText = `A image containing information of: \n`+getData`\n <img src="`+  data.data.url + `"/>`
+          newText = `A image containing information of: \n` + getData`\n <img src="` + data.data.url + `"/>`
         } else if (file.type === 'application/pdf') fileText = await extractPdfText(file);
         else fileText = await file.text();
-        if(fileText) newText = expandPromptTemplate(PromptTemplates.PasteFile, { fileName: "", fileText })(newText);
+        if (fileText) newText = expandPromptTemplate(PromptTemplates.PasteFile, { fileName: "", fileText })(newText);
       } catch (error) {
         // show errors in the prompt box itself - FUTURE: show in a toast
         console.error(error);
-       
+
       }
     }
 
@@ -345,8 +345,12 @@ export function Composer(props: {
   const textPlaceholder: string = `Type ${props.isDeveloperMode ? 'your message and drop source files' : 'a message, or drop text files'}...`;
 
   return (
-    <Box sx={props.sx}>
-      <Grid container spacing={{ xs: 1, md: 2 }}>
+    <Box sx={props.sx}
+    >
+      <Grid container
+        spacing=
+        {{ xs: 1, md: 2 }}>
+
         {/* Left pane (buttons and Textarea) */}
         <Grid xs={12} md={9}>
           <Stack direction="row" spacing={{ xs: 1, md: 2 }}>
@@ -464,7 +468,7 @@ export function Composer(props: {
         {/* Send pane */}
         <Grid xs={12} md={3}>
           <Stack spacing={2}>
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'row' }}>
               {/* [mobile-only] Sent messages arrow */}
               {sentMessages.length > 0 && (
                 <IconButton variant="plain" color="neutral" onClick={showSentMessages} sx={{ ...hideOnDesktop, mr: { xs: 1, md: 2 } }}>
@@ -485,7 +489,25 @@ export function Composer(props: {
                   Stop
                 </Button>
               ) : (
-                <Button fullWidth variant="solid" color="primary" disabled={!props.conversationId} onClick={handleSendClicked} endDecorator={<TelegramIcon />}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    backgroundColor: "#4E4FEB",
+                    color: "#000",
+                    marginTop: "15px",
+                    padding: "10px 20px",
+                    border: "2px solid #4E4FEB",
+                    fontWeight: "semibold",
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100px",
+                    justifyContent: "center",
+                  }}
+                  disabled={!props.conversationId}
+                  onClick={handleSendClicked}
+                  endDecorator={<TelegramIcon />}
+                >
                   Send
                 </Button>
               )}
