@@ -9,6 +9,7 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id            String         @id @default(cuid())
   name          String?
@@ -21,26 +22,24 @@ model User {
   stars         Star[]
 }
 
-
 model Book {
-   id            String         @id @default(cuid())
-   title         String
-   thumbnile     String              @db.Text
-   content       String              @db.Text
-   stars         Star[]
-   file          String              @db.Text
-   addedBy            User                @relation(fields: [userId], references: [id])
-   userId             String
-   @@index([userId])
+  id            String         @id @default(cuid())
+  title         String
+  thumbnail     String         @db.Text
+  content       String         @db.Text
+  stars         Star[]
+  file          String         @db.Text
+  addedBy       User           @relation(fields: [userId], references: [id])
+  userId        String
+  @@index([userId])
 }
 
-
 model Star {
-   id            String         @id @default(cuid())
-   givenBy            User                @relation(fields: [userId], references: [id])
-   userId             String
-   @@index([userId])
-   givenTo            Book                @relation(fields: [bookId], references: [id])
-   bookId             String
-   @@index([bookId])
+  id       String  @id @default(cuid())
+  givenBy  User    @relation(fields: [givenById], references: [id])
+  givenById String
+  @@index([givenById])
+  givenTo  Book    @relation(fields: [givenToId], references: [id])
+  givenToId String
+  @@index([givenToId])
 }

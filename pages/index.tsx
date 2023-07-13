@@ -21,16 +21,15 @@ export default function Home() {
 
   const { status: sessionStatus } = useSession();
 
-  // show the Settings Dialog at startup if the API key is required but not set
-  React.useEffect(() => {
-    console.log('sessionStatus');
-    console.log(sessionStatus);
+  // React.useEffect(() => {
+  //   console.log('sessionStatus');
+  //   console.log(sessionStatus);
 
-    if (sessionStatus === 'unauthenticated') {
-      router.push(`/login`);
-      return;
-    }
-  }, [sessionStatus]);
+  //   if (sessionStatus === 'unauthenticated') {
+  //     router.push(`/login`);
+  //     return;
+  //   }
+  // }, [router, sessionStatus]);
 
   return (
     /**

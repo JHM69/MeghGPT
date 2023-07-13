@@ -6,6 +6,7 @@ import { env } from 'process';
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '../../../server/db/client';
+import { PrismaClient } from '@prisma/client';
 
 export const authOptions: NextAuthOptions = {
   // Include user.id on session
@@ -28,7 +29,7 @@ export const authOptions: NextAuthOptions = {
   },
   secret: env.JWT_SECRET,
   // Configure one or more authentication providers
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(PrismaClient),
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_ID,

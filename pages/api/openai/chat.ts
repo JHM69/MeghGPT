@@ -2,34 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { OpenAIAPI } from '@/types/api-openai';
 
-
 if (!process.env.OPENAI_API_KEY)
   console.warn(
-    'OPENAI_API_KEY has not been provided in this deployment environment. ' +
-    'Will use the optional keys incoming from the client, which is not recommended.',
+    'OPENAI_API_KEY has not been provided in this deployment environment. ' + 'Will use the optional keys incoming from the client, which is not recommended.',
   );
-
 
 // helper functions
 
 export async function extractOpenaiChatInputs(req: NextRequest): Promise<ApiChatInput> {
-  const {
-    api: userApi = {},
-    model,
-    messages,
-    temperature = 0.5,
-    max_tokens = 1024,
-  } = (await req.json()) as Partial<ApiChatInput>;
-  if (!model || !messages)
-    throw new Error('Missing required parameters: api, model, messages');
+  const { api: userApi = {}, model , messages, temperature = 0.5, max_tokens = 1024 } = (await req.json()) as Partial<ApiChatInput>;
+  if (!model || !messages) throw new Error('Missing required parameters: api, model, messages');
+
+  console.log(messages);
+ 
 
   const api: OpenAIAPI.Configuration = {
     apiKey: (userApi.apiKey || process.env.OPENAI_API_KEY || '').trim(),
     apiHost: (userApi.apiHost || process.env.OPENAI_API_HOST || 'api.openai.com').trim().replaceAll('https://', ''),
     apiOrganizationId: (userApi.apiOrganizationId || process.env.OPENAI_API_ORG_ID || '').trim(),
   };
-  if (!api.apiKey)
-    throw new Error('Missing OpenAI API Key. Add it on the client side (Settings icon) or server side (your deployment).');
+  if (!api.apiKey) throw new Error('Missing OpenAI API Key. Add it on the client side (Settings icon) or server side (your deployment).');
 
   return { api, model, messages, temperature, max_tokens };
 }
@@ -41,7 +33,7 @@ const openAIHeaders = (api: OpenAIAPI.Configuration): HeadersInit => ({
 });
 
 export const chatCompletionPayload = (input: Omit<ApiChatInput, 'api'>, stream: boolean): OpenAIAPI.Chat.CompletionsRequest => ({
-  model: input.model,
+  model: input.model, 
   messages: input.messages,
   ...(input.temperature && { temperature: input.temperature }),
   ...(input.max_tokens && { max_tokens: input.max_tokens }),
@@ -81,7 +73,6 @@ export async function postToOpenAI<TBody extends object>(api: OpenAIAPI.Configur
   return response;
 }
 
-
 // I/O types for this endpoint
 
 export interface ApiChatInput {
@@ -101,9 +92,11 @@ export default async function handler(req: NextRequest) {
     const { api, ...rest } = await extractOpenaiChatInputs(req);
     const response = await postToOpenAI(api, '/v1/chat/completions', chatCompletionPayload(rest, false));
     const completion: OpenAIAPI.Chat.CompletionsResponse = await response.json();
-    return new NextResponse(JSON.stringify({
-      message: completion.choices[0].message,
-    } as ApiChatResponse));
+    return new NextResponse(
+      JSON.stringify({
+        message: completion.choices[0].message,
+      } as ApiChatResponse),
+    );
   } catch (error: any) {
     console.error('Fetch request failed:', error);
     return new NextResponse(`[Issue] ${error}`, { status: 400 });
