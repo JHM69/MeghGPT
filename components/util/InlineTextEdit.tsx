@@ -17,7 +17,7 @@ export function InlineTextEdit(props: { initialText: string; onEdit: (text: stri
   const handleEditBlur = () => props.onEdit(text);
 
   return (
-    <article>
+     
       <Textarea
         variant="soft"
         color="warning"
@@ -29,6 +29,6 @@ export function InlineTextEdit(props: { initialText: string; onEdit: (text: stri
         onBlur={handleEditBlur}
         sx={props.sx}
       />
-    </article>
+   
   );
 }

@@ -36,8 +36,8 @@ const hideOnDesktop = { display: { xs: 'flex', md: 'none' } };
 /// Text template helpers
 
 const PromptTemplates = {
-  Concatenate: '{{input}}\n\n{{text}}',
-  PasteFile: '{{input}}\n\n```{{fileName}}\n{{fileText}}\n```\n',
+  Concatenate: '{{input}}\n\n{{text}}', 
+  PasteFile: '{{input}}\n\n```{{fileName}}\n{{fileText}}\n```\n',  
   PasteMarkdown: '{{input}}\n\n```\n{{clipboard}}\n```\n',
 };
 
@@ -205,52 +205,21 @@ export function Composer(props: {
         const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
 
         if (validImageTypes.includes(file.type)) {
-
-          // const formData = new FormData();
-          // formData.append('myImage', file);
-          // formData.append('source', 'Primary');
-          // const params1 = new URLSearchParams();
-          // params1.append('key', "6fb05d54395ce902d195e68d44ac0ba6");
-
-          // const { data: postData } = await axios.post('https://api.imgbb.com/1/upload'+params1.toString(), formData);
-          
-          // const params = new URLSearchParams();
-          // params.append('img', postData.downloadUrl);
-          
-          // const url = "https://hook.eu1.make.com/36n1b3tlrfzbiicubweup3rkfjtdq8n7?" + params.toString();
-          // const { data: getData } = await axios.get(url);
-          
-          // console.log(getData);
-          
+          const formData = new FormData();
+          formData.append('image', file);
+          const { data } = await axios.post('https://api.imgbb.com/1/upload?expiration=600&key=6fb05d54395ce902d195e68d44ac0ba6', formData);
 
 
-          const reader = new FileReader();
+          const { data: getData } = await axios.get('https://hook.eu1.make.com/36n1b3tlrfzbiicubweup3rkfjtdq8n7?img=' + data.data.url);
 
-          reader.onloadend = function () {
-            const base64String = reader?.result.split(',')[1];
-            // The variable 'base64String' now contains the Base64 encoded file data
-            console.log(base64String);
-
-            const req = new vision.Request({
-              image: new vision.Image({
-                base64: base64String,
-              }),
-              features: [new vision.Feature('TEXT_DETECTION	', 4), new vision.Feature('LABEL_DETECTION', 10)],
-            });
-
-          
-
-            console.log(req);
-          };
-
-          reader.readAsDataURL(file);
+          newText = `A image containing information of: \n`+getData`\n <img src="`+  data.data.url + `"/>`
         } else if (file.type === 'application/pdf') fileText = await extractPdfText(file);
         else fileText = await file.text();
-        newText = expandPromptTemplate(PromptTemplates.PasteFile, { fileName: file.name, fileText })(newText);
+        if(fileText) newText = expandPromptTemplate(PromptTemplates.PasteFile, { fileName: "", fileText })(newText);
       } catch (error) {
         // show errors in the prompt box itself - FUTURE: show in a toast
         console.error(error);
-        newText = `${newText}\n\nError loading file ${file.name}: ${error}\n`;
+       
       }
     }
 
@@ -360,18 +329,13 @@ export function Composer(props: {
     eatDragEvent(e);
     setIsDragging(false);
 
-    // dropped files
     if (e.dataTransfer.files?.length >= 1) return loadAndAttachFiles(e.dataTransfer.files);
 
-    // special case: detect failure of dropping from VSCode
-    // VSCode: Drag & Drop does not transfer the File object: https://github.com/microsoft/vscode/issues/98629#issuecomment-634475572
     if ('codeeditors' in e.dataTransfer.types) return setComposeText((test) => test + 'Pasting from VSCode is not supported! Fixme. Anyone?');
 
-    // dropped text
     const droppedText = e.dataTransfer.getData('text');
     if (droppedText?.length >= 1) return setComposeText((text) => expandPromptTemplate(PromptTemplates.PasteMarkdown, { clipboard: droppedText })(text));
 
-    // future info for dropping
     console.log(
       'Unhandled Drop event. Contents: ',
       e.dataTransfer.types.map((t) => `${t}: ${e.dataTransfer.getData(t)}`),

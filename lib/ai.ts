@@ -61,6 +61,7 @@ export async function streamAssistantMessage(
   };
 
   try {
+    generateImage("A boy with a girl")
     const response = await fetch('/api/openai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -113,7 +114,7 @@ export async function streamAssistantMessage(
       console.log(chatResponse.message.content);
     }
   } catch (error: any) {
-    console.error('updateAutoConversationTitle: fetch request error:', error);
+    console.error(' : fetch request error:', error);
   }
 
   // try {
@@ -207,58 +208,4 @@ export async function streamAssistantMessage(
 /**
  * Creates the AI titles for conversations, by taking the last 5 first-lines and asking AI what's that about
  */
-export async function updateAutoConversationTitle(conversationId: string) {
-  // external state
-  const { conversations, setAutoTitle } = useChatStore.getState();
 
-  // only operate on valid conversations, without any title
-  const conversation = conversations.find((c) => c.id === conversationId) ?? null;
-  if (!conversation || conversation.autoTitle || conversation.userTitle) return;
-
-  // first line of the last 5 messages
-  const historyLines: string[] = conversation.messages
-    .slice(-5)
-    .filter((m) => m.role !== 'system')
-    .map((m) => {
-      let text = m.text.split('\n')[0];
-      text = text.length > 50 ? text.substring(0, 50) + '...' : text;
-      text = `${m.role === 'user' ? 'You' : 'Assistant'}: ${text}`;
-      return `- ${text}`;
-    });
-
-  // prepare the payload
-  const { apiKey, apiHost, apiOrganizationId } = useSettingsStore.getState();
-  const payload: ApiChatInput = {
-    api: {
-      ...(apiKey && { apiKey }),
-      ...(apiHost && { apiHost }),
-      ...(apiOrganizationId && { apiOrganizationId }),
-    },
-    model: fastChatModelId,
-    messages: [
-      { role: 'system', content: `normal` },
-      {
-        role: 'user',
-        content: historyLines.join('\n') + '\n',
-      },
-    ],
-  };
-
-  try {
-    const response = await fetch('/api/openai/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (response.ok) {
-      const chatResponse: ApiChatResponse = await response.json();
-
-      console.log(chatResponse);
-
-      const title = chatResponse.message?.content?.trim()?.replaceAll('"', '')?.replace('Title: ', '')?.replace('title: ', '');
-      if (title) setAutoTitle(conversationId, title);
-    }
-  } catch (error: any) {
-    console.error('updateAutoConversationTitle: fetch request error:', error);
-  }
-}

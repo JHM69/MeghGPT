@@ -15,7 +15,7 @@ import { PublishedModal } from '@/components/dialogs/PublishedModal';
 import { createDMessage, DMessage, downloadConversationJson, useChatStore } from '@/lib/store-chats';
 import { publishConversation } from '@/lib/publish';
 import { speakIfFirstLine } from '@/lib/text-to-speech';
-import { streamAssistantMessage, updateAutoConversationTitle } from '@/lib/ai';
+import { streamAssistantMessage } from '@/lib/ai';
 import { useSettingsStore } from '@/lib/store-settings';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -74,9 +74,7 @@ const runAssistantUpdatingState = async (conversationId: string, history: DMessa
 
   // clear to send, again
   startTyping(conversationId, null);
-
-  // update text, if needed
-  await updateAutoConversationTitle(conversationId);
+ 
 };
 
 export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {

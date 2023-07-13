@@ -157,6 +157,15 @@ const parseBlocks = (forceText: boolean, text: string): Block[] => {
     const highlightedCode = Prism.highlight(code, Prism.languages[highlightLanguage] || Prism.languages.typescript, highlightLanguage);
 
     result.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+
+    if (text.slice(match.index, match.index + 5) === '<img ') {
+      // Find the end of the <img> tag
+      const imgTagEndIndex = text.indexOf('/>', match.index) + 2;
+      const imgTag = text.slice(match.index, imgTagEndIndex);
+      result.push({ type: 'img', content: imgTag });
+  }
+
+
     result.push({ type: 'code', content: highlightedCode, language: codeLanguage, complete: blockEnd.startsWith('```'), code });
     lastIndex = match.index + match[0].length;
   }
@@ -290,8 +299,7 @@ function explainErrorInMessage(text: string, isAssistant: boolean, modelId?: str
       // TODO: retry at the api/chat level a few times instead of showing this error
       errorMessage = (
         <>
-          The model appears to be occupied at the moment. Kindly select <b>GPT-3.5 Turbo</b>, or give it another go by selecting <b>Run again</b> from the
-          message menu.
+         Too many requests. Hold on!
         </>
       );
     } else if (text.includes('"model_not_found"')) {
@@ -299,9 +307,7 @@ function explainErrorInMessage(text: string, isAssistant: boolean, modelId?: str
       errorMessage = (
         <>
           The API key appears to be unauthorized for {modelId || 'this model'}. You can change to <b>GPT-3.5 Turbo</b> and simultaneously{' '}
-          <Link noLinkStyle href="https://openai.com/waitlist/gpt-4-api" target="_blank">
-            request access
-          </Link>{' '}
+         
           to the desired model.
         </>
       );
@@ -567,13 +573,16 @@ export function ChatMessage(props: {
 
           {!errorMessage &&
             parseBlocks(fromSystem, collapsedText).map((block, index) =>
-              block.type === 'code' ? (
-                <RenderCode key={'code-' + index} codeBlock={block} sx={cssCode} />
-              ) : renderMarkdown ? (
-                <RenderMarkdown key={'text-md-' + index} textBlock={block} />
-              ) : (
-                <RenderText key={'text-' + index} textBlock={block} />
-              ),
+            block.type === 'code' ? (
+              <RenderCode key={'code-' + index} codeBlock={block} sx={cssCode} />
+            ) : block.type === 'img' ? (
+              <RenderImage key={'img-' + index} imgBlock={block} />
+            ) : renderMarkdown ? (
+              <RenderMarkdown key={'text-md-' + index} textBlock={block} />
+            ) : (
+              <RenderText key={'text-' + index} textBlock={block} />
+            )
+            
             )}
 
           {errorMessage && (
