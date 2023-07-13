@@ -39,9 +39,9 @@ export const theme = extendTheme({
           100: '#f0f8ff', // plainHoverBg  -  #DDF1FF | #f0f4ff | #f0f8ff (aliceblue)
           // 200: '#ADDBFF',
           // 300: '#6FB6FF',
-          // 400: '#3990FF',
-          // 500: '#096BDE', // solidBg [Button.solid]  -  #096BDE | #0D46D7 (suggested)
-          // 600: '#054DA7', // solidHoverBg [IconButton.plain (fg)]
+          // 400: '#e839ff',
+          // 500: '#b009de', // solidBg [Button.solid]  -  #096BDE | #0D46D7 (suggested)
+          // 600: '#6e05a7', // solidHoverBg [IconButton.plain (fg)]
           // 700: '#02367D',
           // 800: '#072859',
           // 900: '#00153C',

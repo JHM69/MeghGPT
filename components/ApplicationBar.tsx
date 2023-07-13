@@ -21,6 +21,8 @@ import { StyledDropdownWithSymbol } from '@/components/util/StyledDropdownWithSy
 import { useChatStore } from '@/lib/store-chats';
 import { useSettingsStore } from '@/lib/store-settings';
 import Link from 'next/link';
+import { Login } from '@mui/icons-material';
+import { signOut } from 'next-auth/react';
 
 /**
  * The top bar of the application, with the model and purpose selection, and menu/settings icons
@@ -87,16 +89,14 @@ export function ApplicationBar(props: {
     shallow,
   );
 
-  const handleConversationClear = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleLogut = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     setClearConfirmationId(props.conversationId);
   };
 
-  const handleConfirmedClearConversation = () => {
+  const handleSignOut = () => {
     if (clearConfirmationId) {
-      setMessages(clearConfirmationId, []);
-      setAutoTitle(clearConfirmationId, '');
-      setClearConfirmationId(null);
+      signOut({ redirect: true, callbackUrl: '/' });
     }
   };
 
@@ -145,10 +145,12 @@ export function ApplicationBar(props: {
             ) : (
               <StyledDropdownWithSymbol items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
             ))}
-
-          <Link href="/bookvarse" target="_blank">
-            <button>MeghBuzz Bookvarse</button>
-          </Link>
+          <button>
+            {' '}
+            <Link href="/bookvarse" target="_blank">
+              MeghBuzz Bookvarse
+            </Link>{' '}
+          </button>
         </Stack>
 
         <IconButton variant="plain" onClick={(event) => setActionsMenuAnchor(event.currentTarget)}>
@@ -179,56 +181,18 @@ export function ApplicationBar(props: {
           <Switch checked={colorMode === 'dark'} onChange={handleDarkModeToggle} sx={{ ml: 'auto' }} />
         </MenuItem>
 
-        <MenuItem>
-          <ListItemDecorator>
-            <SettingsSuggestIcon />
-          </ListItemDecorator>
-          System text
-          <Switch checked={showSystemMessages} onChange={handleSystemMessagesToggle} sx={{ ml: 'auto' }} />
-        </MenuItem>
-
-        <MenuItem>
-          <ListItemDecorator>
-            <SwapVertIcon />
-          </ListItemDecorator>
-          Free scroll
-          <Switch checked={freeScroll} onChange={handleScrollModeToggle} sx={{ ml: 'auto' }} />
-        </MenuItem>
-
-        <MenuItem onClick={handleActionShowSettings}>
+        {/* <MenuItem onClick={handleActionShowSettings}>
           <ListItemDecorator>
             <SettingsOutlinedIcon />
           </ListItemDecorator>
           Settings
-        </MenuItem>
+        </MenuItem> */}
 
-        <ListDivider />
-
-        <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationDownload}>
+        <MenuItem onClick={handleLogut}>
           <ListItemDecorator>
-            {/*<Badge size='sm' color='danger'>*/}
-            <FileDownloadIcon />
-            {/*</Badge>*/}
+            <Login />
           </ListItemDecorator>
-          Download JSON
-        </MenuItem>
-
-        <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationPublish}>
-          <ListItemDecorator>
-            {/*<Badge size='sm' color='primary'>*/}
-            <ExitToAppIcon />
-            {/*</Badge>*/}
-          </ListItemDecorator>
-          Share via paste.gg
-        </MenuItem>
-
-        <ListDivider />
-
-        <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationClear}>
-          <ListItemDecorator>
-            <ClearIcon />
-          </ListItemDecorator>
-          Clear conversation
+          Log Out
         </MenuItem>
       </Menu>
 
@@ -236,9 +200,9 @@ export function ApplicationBar(props: {
       <ConfirmationModal
         open={!!clearConfirmationId}
         onClose={() => setClearConfirmationId(null)}
-        onPositive={handleConfirmedClearConversation}
-        confirmationText={'Are you sure you want to discard all the messages?'}
-        positiveActionText={'Clear conversation'}
+        onPositive={handleSignOut}
+        confirmationText={'Are you sure you want to log out ?'}
+        positiveActionText={'Log Out'}
       />
     </>
   );

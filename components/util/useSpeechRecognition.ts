@@ -54,6 +54,8 @@ export const useSpeechRecognition = (onResultCallback: (transcript: string) => v
         instance.interimResults = false;
         instance.maxAlternatives = 1;
 
+        console.log("Recohnising....")
+
         instance.onerror = event => {
           console.error('Error occurred during speech recognition:', event.error);
           setIsSpeechError(true);

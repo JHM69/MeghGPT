@@ -6,7 +6,8 @@ import { Chat } from '@/components/Chat';
 import { NoSSR } from '@/components/util/NoSSR';
 import { isValidOpenAIApiKey, SettingsModal } from '@/components/dialogs/SettingsModal';
 import { useSettingsStore } from '@/lib/store-settings';
-
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 export default function Home() {
   // state
@@ -14,16 +15,22 @@ export default function Home() {
 
   // external state
   const theme = useTheme();
-  const apiKey = useSettingsStore(state => state.apiKey);
-  const centerMode = useSettingsStore(state => state.centerMode);
+  const apiKey = useSettingsStore((state) => state.apiKey);
+  const centerMode = useSettingsStore((state) => state.centerMode);
+  const router = useRouter();
 
+  const { status: sessionStatus } = useSession();
 
   // show the Settings Dialog at startup if the API key is required but not set
   React.useEffect(() => {
-    if (!process.env.HAS_SERVER_KEY_OPENAI && !isValidOpenAIApiKey(apiKey))
-      setSettingsShown(true);
-  }, [apiKey]);
+    console.log('sessionStatus');
+    console.log(sessionStatus);
 
+    if (sessionStatus === 'unauthenticated') {
+      router.push(`/login`);
+      return;
+    }
+  }, [sessionStatus]);
 
   return (
     /**
@@ -31,21 +38,21 @@ export default function Home() {
      *  - Even the overall container could have hydration issues when using localStorage and non-default maxWidth
      */
     <NoSSR>
-
-      <Container maxWidth={centerMode === 'full' ? false : centerMode === 'narrow' ? 'md' : 'xl'} disableGutters sx={{
-        boxShadow: {
-          xs: 'none',
-          md: centerMode === 'narrow' ? theme.vars.shadow.md : 'none',
-          xl: centerMode !== 'full' ? theme.vars.shadow.lg : 'none',
-        },
-      }}>
-
+      <Container
+        maxWidth={centerMode === 'full' ? false : centerMode === 'narrow' ? 'md' : 'xl'}
+        disableGutters
+        sx={{
+          boxShadow: {
+            xs: 'none',
+            md: centerMode === 'narrow' ? theme.vars.shadow.md : 'none',
+            xl: centerMode !== 'full' ? theme.vars.shadow.lg : 'none',
+          },
+        }}
+      >
         <Chat onShowSettings={() => setSettingsShown(true)} />
 
         <SettingsModal open={settingsShown} onClose={() => setSettingsShown(false)} />
-
       </Container>
-
     </NoSSR>
   );
 }

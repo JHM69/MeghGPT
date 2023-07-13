@@ -17,25 +17,24 @@ import { publishConversation } from '@/lib/publish';
 import { speakIfFirstLine } from '@/lib/text-to-speech';
 import { streamAssistantMessage, updateAutoConversationTitle } from '@/lib/ai';
 import { useSettingsStore } from '@/lib/store-settings';
-
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 /**
  * The main "chat" function. TODO: this is here so we can soon move it to the data model.
  */
 const runAssistantUpdatingState = async (conversationId: string, history: DMessage[], assistantModel: ChatModelId, assistantPurpose: SystemPurposeId) => {
-
   // reference the state editing functions
   const { startTyping, appendMessage, editMessage, setMessages } = useChatStore.getState();
 
   // update the purpose of the system message (if not manually edited), and create if needed
   {
-    const systemMessageIndex = history.findIndex(m => m.role === 'system');
+    const systemMessageIndex = history.findIndex((m) => m.role === 'system');
     const systemMessage: DMessage = systemMessageIndex >= 0 ? history.splice(systemMessageIndex, 1)[0] : createDMessage('system', '');
 
     if (!systemMessage.updated) {
       systemMessage.purposeId = assistantPurpose;
-      systemMessage.text = SystemPurposes[assistantPurpose]?.systemMessage
-        .replaceAll('{{Today}}', new Date().toISOString().split('T')[0]);
+      systemMessage.text = SystemPurposes[assistantPurpose]?.systemMessage.replaceAll('{{Today}}', new Date().toISOString().split('T')[0]);
     }
 
     history.unshift(systemMessage);
@@ -58,7 +57,20 @@ const runAssistantUpdatingState = async (conversationId: string, history: DMessa
   startTyping(conversationId, controller);
 
   const { apiKey, apiHost, apiOrganizationId, modelTemperature, modelMaxResponseTokens } = useSettingsStore.getState();
-  await streamAssistantMessage(conversationId, assistantMessageId, history, apiKey, apiHost, apiOrganizationId, assistantModel, modelTemperature, modelMaxResponseTokens, editMessage, controller.signal, speakIfFirstLine);
+  await streamAssistantMessage(
+    conversationId,
+    assistantMessageId,
+    history,
+    apiKey,
+    apiHost,
+    apiOrganizationId,
+    assistantModel,
+    modelTemperature,
+    modelMaxResponseTokens,
+    editMessage,
+    controller.signal,
+    speakIfFirstLine,
+  );
 
   // clear to send, again
   startTyping(conversationId, null);
@@ -67,16 +79,17 @@ const runAssistantUpdatingState = async (conversationId: string, history: DMessa
   await updateAutoConversationTitle(conversationId);
 };
 
-
-export function Chat(props: { onShowSettings: () => void, sx?: SxProps }) {
+export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {
   // state
   const [publishConversationId, setPublishConversationId] = React.useState<string | null>(null);
   const [publishResponse, setPublishResponse] = React.useState<ApiPublishResponse | null>(null);
 
+  
+
   // external state
   const theme = useTheme();
-  const { activeConversationId, chatModelId, systemPurposeId } = useChatStore(state => {
-    const conversation = state.conversations.find(conversation => conversation.id === state.activeConversationId);
+  const { activeConversationId, chatModelId, systemPurposeId } = useChatStore((state) => {
+    const conversation = state.conversations.find((conversation) => conversation.id === state.activeConversationId);
     return {
       activeConversationId: state.activeConversationId,
       chatModelId: conversation?.chatModelId ?? null,
@@ -84,10 +97,8 @@ export function Chat(props: { onShowSettings: () => void, sx?: SxProps }) {
     };
   }, shallow);
 
-
   const _findConversation = (conversationId: string) =>
-    conversationId ? useChatStore.getState().conversations.find(c => c.id === conversationId) ?? null : null;
-
+    conversationId ? useChatStore.getState().conversations.find((c) => c.id === conversationId) ?? null : null;
 
   const handleSendMessage = async (conversationId: string, userText: string) => {
     const conversation = _findConversation(conversationId);
@@ -96,16 +107,13 @@ export function Chat(props: { onShowSettings: () => void, sx?: SxProps }) {
   };
 
   const handleRestartConversation = async (conversationId: string, history: DMessage[]) => {
-    if (conversationId && chatModelId && systemPurposeId)
-      await runAssistantUpdatingState(conversationId, history, chatModelId, systemPurposeId);
+    if (conversationId && chatModelId && systemPurposeId) await runAssistantUpdatingState(conversationId, history, chatModelId, systemPurposeId);
   };
-
 
   const handleDownloadConversationToJson = (conversationId: string) => {
     const conversation = _findConversation(conversationId);
     conversation && downloadConversationJson(conversation);
   };
-
 
   const handlePublishConversation = (conversationId: string) => setPublishConversationId(conversationId);
 
@@ -117,24 +125,27 @@ export function Chat(props: { onShowSettings: () => void, sx?: SxProps }) {
     }
   };
 
-
   return (
-
     <Box
       sx={{
-        display: 'flex', flexDirection: 'column', minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
         ...(props.sx || {}),
-      }}>
-
+      }}
+    >
       <ApplicationBar
         conversationId={activeConversationId}
         onDownloadConversationJSON={handleDownloadConversationToJson}
         onPublishConversation={handlePublishConversation}
         onShowSettings={props.onShowSettings}
         sx={{
-          position: 'sticky', top: 0, zIndex: 20,
+          position: 'sticky',
+          top: 0,
+          zIndex: 20,
           // ...(process.env.NODE_ENV === 'development' ? { background: theme.vars.palette.danger.solidBg } : {}),
-        }} />
+        }}
+      />
 
       <ChatMessageList
         conversationId={activeConversationId}
@@ -144,35 +155,43 @@ export function Chat(props: { onShowSettings: () => void, sx?: SxProps }) {
           background: theme.vars.palette.background.level2,
           overflowY: 'hidden',
           marginBottom: '-1px',
-        }} />
+        }}
+      />
 
       <Composer
-        conversationId={activeConversationId} messageId={null}
+        conversationId={activeConversationId}
+        messageId={null}
         isDeveloperMode={systemPurposeId === 'Developer'}
         onSendMessage={handleSendMessage}
         sx={{
-          position: 'sticky', bottom: 0, zIndex: 21,
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 21,
           background: theme.vars.palette.background.surface,
           borderTop: `1px solid ${theme.vars.palette.divider}`,
           p: { xs: 1, md: 2 },
-        }} />
+        }}
+      />
 
       {/* Confirmation for Publishing */}
       <ConfirmationModal
-        open={!!publishConversationId} onClose={() => setPublishConversationId(null)} onPositive={handleConfirmedPublishConversation}
-        confirmationText={<>
-          Share your conversation anonymously on <Link href='https://paste.gg' target='_blank'>paste.gg</Link>?
-          It will be unlisted and available to share and read for 30 days. Keep in mind, deletion may not be possible.
-          Are you sure you want to proceed?
-        </>} positiveActionText={'Understood, upload to paste.gg'}
+        open={!!publishConversationId}
+        onClose={() => setPublishConversationId(null)}
+        onPositive={handleConfirmedPublishConversation}
+        confirmationText={
+          <>
+            Share your conversation anonymously on{' '}
+            <Link href="https://paste.gg" target="_blank">
+              paste.gg
+            </Link>
+            ? It will be unlisted and available to share and read for 30 days. Keep in mind, deletion may not be possible. Are you sure you want to proceed?
+          </>
+        }
+        positiveActionText={'Understood, upload to paste.gg'}
       />
 
       {/* Show the Published details */}
-      {!!publishResponse && (
-        <PublishedModal open onClose={() => setPublishResponse(null)} response={publishResponse} />
-      )}
-
+      {!!publishResponse && <PublishedModal open onClose={() => setPublishResponse(null)} response={publishResponse} />}
     </Box>
-
   );
 }

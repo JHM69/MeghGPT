@@ -48,13 +48,13 @@ export const ChatModels: { [key in ChatModelId]: ChatModelData } = {
   'gpt-4': {
     description: 'Most insightful, larger problems, but slow, expensive, and may be unavailable',
     title: 'GPT-4',
-    fullName: 'GPT-4',
+    fullName: 'MegBuzz GPT',
     contextWindowSize: 8192,
   },
   'gpt-3.5-turbo': {
     description: 'A good balance between speed and insight',
-    title: '3.5-Turbo',
-    fullName: 'GPT-3.5 Turbo',
+    title: 'MegBuzz',
+    fullName: 'MegBuzz GPT',
     contextWindowSize: 4097,
   },
 };
