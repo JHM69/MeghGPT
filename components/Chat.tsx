@@ -74,7 +74,7 @@ const runAssistantUpdatingState = async (conversationId: string, history: DMessa
 
   // clear to send, again
   startTyping(conversationId, null);
- 
+
 };
 
 export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {
@@ -82,7 +82,7 @@ export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {
   const [publishConversationId, setPublishConversationId] = React.useState<string | null>(null);
   const [publishResponse, setPublishResponse] = React.useState<ApiPublishResponse | null>(null);
 
-  
+
 
   // external state
   const theme = useTheme();
@@ -141,6 +141,8 @@ export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {
           position: 'sticky',
           top: 0,
           zIndex: 20,
+          background: 'linear-gradient(to right, #fecd00, #ad1af1)',
+          color: '#333', // Example text color
           // ...(process.env.NODE_ENV === 'development' ? { background: theme.vars.palette.danger.solidBg } : {}),
         }}
       />
@@ -166,6 +168,7 @@ export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {
           bottom: 0,
           zIndex: 21,
           background: theme.vars.palette.background.surface,
+          backgroundColor: '#EFE1D1',
           borderTop: `1px solid ${theme.vars.palette.divider}`,
           p: { xs: 1, md: 2 },
         }}
