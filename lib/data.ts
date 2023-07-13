@@ -14,7 +14,7 @@ export const SystemPurposes: { [key in SystemPurposeId]: SystemPurposeData } = {
   Normal: {
     title: 'GPT',
     description: 'Normal Chat GPT Funtionality',
-    systemMessage: 'Your sophisticated, accurate, and smart AI assistant',
+    systemMessage: 'normal',
     symbol: '👩‍💻',
     examples: [
       'What is BUET CSE Hackathon?',
@@ -26,23 +26,22 @@ export const SystemPurposes: { [key in SystemPurposeId]: SystemPurposeData } = {
   Story: {
     title: 'Story Generator',
     description: '',
-    systemMessage:
-      'write a story about the message and develop a html page which will contain the story. the story will have different sections. each section will contain a image. each section where image will be added as alt od img tag. make nice formatting using tailwind css. You will send only the html code. Story will no longer be 1000 word.',
+    systemMessage: 'story',
     symbol: '🖊️',
     examples: ['Write a story about a boy playing cricket'],
   },
   Tour: {
     title: 'Tour',
     description: '',
-    systemMessage: '',
+    systemMessage: 'tour',
     symbol: '⛱',
     examples: ['Write a blog about my last tour of Coxs Bazar'],
   },
 };
 
-export type ChatModelId = 'gpt-4' | 'gpt-3.5-turbo';
+export type ChatModelId = 'gpt-3.5-turbo' | 'gpt-4';
 
-export const defaultChatModelId: ChatModelId = 'gpt-4';
+export const defaultChatModelId: ChatModelId = 'gpt-3.5-turbo';
 export const fastChatModelId: ChatModelId = 'gpt-3.5-turbo';
 
 type ChatModelData = {

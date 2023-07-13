@@ -9,12 +9,34 @@ if (!process.env.OPENAI_API_KEY)
 
 // helper functions
 
+const checks: Record<string, string> = {
+  story: `Write a kids' story about a message and develop an HTML page using only the <br>, <b>, <i> tags. The story will have different sections. each section will contain a image. each section where image will be placed add [image prompt goes here], example: [A green frog in a lake]. Note that the story should not exceed 300 words
+    Your output will must in JSON formatted: Example
+
+    {content: "
+      Story Content started.......
+      ......
+      [A nice image of frog]
+      Story Continues.....
+      .....
+      [Blue Sky with Mountain]
+      .......",
+    title: "My Nice Story Title"
+    thumbnile: "A appropiate propmpt"
+    }   
+  `,
+  normal: 'Normal GPT',
+  tour: 'Make a tour blog',
+};
+
 export async function extractOpenaiChatInputs(req: NextRequest): Promise<ApiChatInput> {
-  const { api: userApi = {}, model , messages, temperature = 0.5, max_tokens = 1024 } = (await req.json()) as Partial<ApiChatInput>;
+  const { api: userApi = {}, model, messages, temperature = 0.5, max_tokens = 1024 } = (await req.json()) as Partial<ApiChatInput>;
   if (!model || !messages) throw new Error('Missing required parameters: api, model, messages');
 
-  console.log(messages);
- 
+  console.log(messages[0].content);
+
+  const content = messages[0].content;
+  messages[0].content = content === 'story' ? checks['story'] : content === 'tour' ? checks['tour'] : checks['normal'];
 
   const api: OpenAIAPI.Configuration = {
     apiKey: (userApi.apiKey || process.env.OPENAI_API_KEY || '').trim(),
@@ -33,7 +55,7 @@ const openAIHeaders = (api: OpenAIAPI.Configuration): HeadersInit => ({
 });
 
 export const chatCompletionPayload = (input: Omit<ApiChatInput, 'api'>, stream: boolean): OpenAIAPI.Chat.CompletionsRequest => ({
-  model: input.model, 
+  model: input.model,
   messages: input.messages,
   ...(input.temperature && { temperature: input.temperature }),
   ...(input.max_tokens && { max_tokens: input.max_tokens }),

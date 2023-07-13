@@ -75,7 +75,7 @@ export function ContentReducerModal(props: {
 
         <ModalClose />
 
-        <Typography level='h5'>Content Reducer [Pre-Alpha]</Typography>
+        <Typography level='h5'>Content Reducer</Typography>
 
         <Divider sx={{ my: 2 }} />
 

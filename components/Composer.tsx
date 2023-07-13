@@ -14,7 +14,6 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import StopOutlinedIcon from '@mui/icons-material/StopOutlined';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-
 import { ChatModels } from '@/lib/data';
 import { ConfirmationModal } from '@/components/dialogs/ConfirmationModal';
 import { ContentReducerModal } from '@/components/dialogs/ContentReducerModal';
@@ -26,6 +25,8 @@ import { extractPdfText } from '@/lib/pdf';
 import { useChatStore } from '@/lib/store-chats';
 import { useComposerStore, useSettingsStore } from '@/lib/store-settings';
 import { useSpeechRecognition } from '@/components/util/useSpeechRecognition';
+import vision from 'react-cloud-vision-api';
+import axios from 'axios';
 
 // CSS helpers
 
@@ -48,54 +49,7 @@ const expandPromptTemplate =
     return expanded;
   };
 
-const attachFileLegend = (
-  <Stack sx={{ p: 1, gap: 1, fontSize: '16px', fontWeight: 400 }}>
-    <Box sx={{ mb: 1, textAlign: 'center' }}>Attach a file to the message</Box>
-    <table>
-      <tbody>
-        <tr>
-          <td width={36}>
-            <PictureAsPdfIcon sx={{ width: 24, height: 24 }} />
-          </td>
-          <td>
-            <b>PDF</b>
-          </td>
-          <td width={36} align="center" style={{ opacity: 0.5 }}>
-            →
-          </td>
-          <td>📝 Text (split manually)</td>
-        </tr>
-        <tr>
-          <td>
-            <DataArrayIcon sx={{ width: 24, height: 24 }} />
-          </td>
-          <td>
-            <b>Code</b>
-          </td>
-          <td align="center" style={{ opacity: 0.5 }}>
-            →
-          </td>
-          <td>📚 Markdown</td>
-        </tr>
-        <tr>
-          <td>
-            <FormatAlignCenterIcon sx={{ width: 24, height: 24 }} />
-          </td>
-          <td>
-            <b>Text</b>
-          </td>
-          <td align="center" style={{ opacity: 0.5 }}>
-            →
-          </td>
-          <td>📝 As-is</td>
-        </tr>
-      </tbody>
-    </table>
-    <Box sx={{ mt: 1, fontSize: '14px' }}>Drag & drop in chat for faster loads ⚡</Box>
-  </Stack>
-);
-
-const pasteClipboardLegend = <Box sx={{ p: 1, fontSize: '14px', fontWeight: 400 }}>Converts Code and Tables to 📚 Markdown</Box>;
+vision.init({ auth: process.env.VISION_API_KEY });
 
 const MicButton = (props: { variant: VariantProp; color: ColorPaletteProp; onClick: () => void; sx?: SxProps }) => (
   <Tooltip title="CTRL + M" placement="top">
@@ -248,7 +202,49 @@ export function Composer(props: {
     for (let file of files) {
       let fileText = '';
       try {
-        if (file.type === 'application/pdf') fileText = await extractPdfText(file);
+        const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
+
+        if (validImageTypes.includes(file.type)) {
+
+          // const formData = new FormData();
+          // formData.append('myImage', file);
+          // formData.append('source', 'Primary');
+          // const params1 = new URLSearchParams();
+          // params1.append('key', "6fb05d54395ce902d195e68d44ac0ba6");
+
+          // const { data: postData } = await axios.post('https://api.imgbb.com/1/upload'+params1.toString(), formData);
+          
+          // const params = new URLSearchParams();
+          // params.append('img', postData.downloadUrl);
+          
+          // const url = "https://hook.eu1.make.com/36n1b3tlrfzbiicubweup3rkfjtdq8n7?" + params.toString();
+          // const { data: getData } = await axios.get(url);
+          
+          // console.log(getData);
+          
+
+
+          const reader = new FileReader();
+
+          reader.onloadend = function () {
+            const base64String = reader?.result.split(',')[1];
+            // The variable 'base64String' now contains the Base64 encoded file data
+            console.log(base64String);
+
+            const req = new vision.Request({
+              image: new vision.Image({
+                base64: base64String,
+              }),
+              features: [new vision.Feature('TEXT_DETECTION	', 4), new vision.Feature('LABEL_DETECTION', 10)],
+            });
+
+          
+
+            console.log(req);
+          };
+
+          reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') fileText = await extractPdfText(file);
         else fileText = await file.text();
         newText = expandPromptTemplate(PromptTemplates.PasteFile, { fileName: file.name, fileText })(newText);
       } catch (error) {
@@ -554,7 +550,7 @@ export function Composer(props: {
         )}
 
         {/* Content reducer modal */}
-        {reducerText?.length >= 1 && chatModelId && (
+        {/* {reducerText?.length >= 1 && chatModelId && (
           <ContentReducerModal
             initialText={reducerText}
             initialTokens={reducerTextTokens}
@@ -563,7 +559,7 @@ export function Composer(props: {
             onReducedText={handleContentReducerText}
             onClose={handleContentReducerClose}
           />
-        )}
+        )} */}
 
         {/* Clear confirmation modal */}
         <ConfirmationModal

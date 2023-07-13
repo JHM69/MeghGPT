@@ -42,6 +42,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ShapeLineOutlinedIcon from '@mui/icons-material/ShapeLineOutlined';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import { Configuration, OpenAIApi } from "openai";
 
 import { DMessage } from '@/lib/store-chats';
 import { InlineTextEdit } from '@/components/util/InlineTextEdit';
@@ -185,6 +186,8 @@ function RenderCode(props: { codeBlock: CodeBlock; sx?: SxProps }) {
     e.stopPropagation();
     copyToClipboard(props.codeBlock.code);
   };
+
+  
 
   return (
     <Box
