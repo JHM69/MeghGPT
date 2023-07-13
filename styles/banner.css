@@ -1,0 +1,14 @@
+.banner-container {
+    text-align: center;
+  }
+  
+  .banner-container img {
+    max-width: 200px;
+    height: 100%;
+    left: 0;
+    top: 0;
+    padding: 0;
+    margin: 0;
+
+  }
+  
