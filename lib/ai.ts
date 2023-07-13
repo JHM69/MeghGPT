@@ -4,16 +4,14 @@ import { fastChatModelId } from '@/lib/data';
 import { useSettingsStore } from '@/lib/store-settings';
 import { json } from 'stream/consumers';
 import { Configuration, OpenAIApi } from 'openai';
+import { PrismaClient } from '@prisma/client';
 
 /**
  * Main function to send the chat to the assistant and receive a response (streaming)
  */
 
-interface Book {
-  content: string;
-  title: string;
-  thumbnail: string;
-}
+
+
 
 const configuration = new Configuration({
   apiKey: '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',
@@ -21,21 +19,29 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const generateImage = async (prompt : string) => {
+const generateImage = async (prompt: string) => {
   try {
     const res = await openai.createImage({
-      prompt: prompt,
+      prompt: 'Create a illustration for: ' + prompt + ', Anime Type, No Text',
       n: 1,
-      size: '512x512',
+      size: '256x256',
     });
 
     console.log(res.data.data[0].url);
 
-    return res.data.data[0].url
+    return res.data.data[0].url;
   } catch (error) {
     console.error(`Error generating image: ${error.response.data.error.message}`);
   }
 };
+
+
+async function addBookToDatabase(book : Book){
+  await prisma?.book.create({
+   data : book,
+  });
+
+}
 
 export async function streamAssistantMessage(
   conversationId: string,
@@ -78,55 +84,21 @@ export async function streamAssistantMessage(
     if (response.ok) {
       const chatResponse: ApiChatResponse = await response.json();
 
-      var text = chatResponse.message.content;
+      var book = chatResponse.book;
 
-    
-
-      editMessage(conversationId, assistantMessageId, { text: text }, false);
-
-      const data : Book = JSON.parse(text.replace(/\n\n/g, '<br><br>'));
-
-      const { content } = data;
-
-   
+      console.log(chatResponse.book)
 
 
-      const imagePromptPattern = /\[(.*?)\]/g;
+      editMessage(conversationId, assistantMessageId, { text: updatedContent }, false);
 
-      // Find all image prompt substrings in the content
-      const imagePrompts = content.match(imagePromptPattern);
+      console.log(book);
 
-      console.log(imagePrompts)
+
       
-      const generatedImageURLs = [];
-
-      if (imagePrompts) {
-        console.log(imagePrompts);
-        for (const imagePrompt of imagePrompts) {
-          console.log(imagePrompt);
-          generatedImageURLs.push(generateImage(imagePrompt));
-        }
-      }
-      
-      let updatedContent = content;
-      for (let i = 0; i < generatedImageURLs.length; i++) {
-        try {
-          updatedContent = updatedContent.replace(imagePrompts[i], `<img src="${generatedImageURLs[i]}" alt="${imagePrompts[i]}" />`);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-  data.content = updatedContent;
-
-  editMessage(conversationId, assistantMessageId, { text: updatedContent }, false);
-
-      console.log(data);
     }
   } catch (error: any) {
     console.error(' : fetch request error:', error);
   }
-
- 
 
   editMessage(conversationId, assistantMessageId, { typing: false }, false);
 }

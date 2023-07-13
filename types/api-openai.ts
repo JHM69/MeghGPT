@@ -10,6 +10,7 @@ export namespace OpenAIAPI {
   // [API] Chat
   export namespace Chat {
     export interface Message {
+      [x: string]: any;
       role: 'assistant' | 'system' | 'user';
       content: string;
     }
