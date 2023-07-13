@@ -68,8 +68,10 @@ To run the project, ensure that you have the following installed:
 ### Usage
 
 1. Start the development server:
+   ```bash
    npm run dev
-2. Access the application locally:
+3. Access the application locally:
+   ```bash
    http://localhost:3000
 
 ## API Integration
@@ -77,8 +79,11 @@ To run the project, ensure that you have the following installed:
 The project integrates several APIs to provide the desired functionalities:
 
 -**Google Cloud Vision**: Used for image analysis and processing of uploaded images.
+
 -**ChatGPT API**: Employs the GPT-3.5 model to generate story prompts based on user-uploaded files.
+
 -**DALL-E 2 API**: Utilized to create anime-style pictures that accompany the story prompts.
+
 -**Eleven Labs API**: Converts text prompts into voice recordings for an enhanced auditory experience.
 
 To integrate these APIs, obtain the necessary API keys and configure them in the project's settings.
@@ -97,6 +102,7 @@ We welcome contributions to enhance MeghBuzz_GPT. If you want to contribute, ple
 We appreciate your contributions!
 
 ## License
+
 MeghBuzz_GPT is released under the MIT License. Please refer to the LICENSE file for more details.
 
 With MeghBuzz_GPT, users can unleash their creativity and storytelling skills. The integration of various APIs and technologies enables a seamless and immersive experience. Whether you're an avid storyteller or an anime enthusiast, MeghBuzz_GPT provides a unique platform to showcase your talent and share your creations with the world. Enjoy the journey of storytelling like never before!
