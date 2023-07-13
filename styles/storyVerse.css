@@ -90,6 +90,7 @@ body {
   bottom: 1rem;
   left: 1rem;
   z-index: 2;
+
 }
 
 .book-card h3 {
@@ -114,6 +115,7 @@ body {
 .book-listing {
   margin-left: -8px;
   margin-right: -8px;
+  margin-top: -12px;
 }
 
 .book-card .mb-4 {
@@ -132,7 +134,7 @@ body {
   color: #000;
 }
 
-.footer {
+.footerStory {
   background-color: #19063f;
   padding: 10px;
   text-align: center;
@@ -140,8 +142,9 @@ body {
   position: fixed;
   bottom: 0;
   width: 100%;
+  z-index: 9999;
 }
 
-.footer a {
+.footerStory a {
   color: #fff;
 }
