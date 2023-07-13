@@ -15,6 +15,28 @@ interface Book {
   thumbnail: string;
 }
 
+const configuration = new Configuration({
+  apiKey: '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',
+});
+
+const openai = new OpenAIApi(configuration);
+
+const generateImage = async (prompt : string) => {
+  try {
+    const res = await openai.createImage({
+      prompt: prompt,
+      n: 1,
+      size: '512x512',
+    });
+
+    console.log(res.data.data[0].url);
+
+    return res.data.data[0].url
+  } catch (error) {
+    console.error(`Error generating image: ${error.response.data.error.message}`);
+  }
+};
+
 export async function streamAssistantMessage(
   conversationId: string,
   assistantMessageId: string,
@@ -44,24 +66,10 @@ export async function streamAssistantMessage(
     max_tokens: modelMaxResponseTokens,
   };
 
-  const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
-  const openai = new OpenAIApi(configuration);
-
-  const generateImage = async (prompt: string) => {
-    const res = await openai.createImage({
-      prompt: prompt,
-      n: 1,
-      size: '512x512',
-    });
-    console.log(res.data.data[0].url);
-    return res.data.data[0].url?.toString();
-  };
-
   try {
-    generateImage("A boy with a girl")
+    generateImage("Tiger");
+
+    return;
     const response = await fetch('/api/openai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -85,9 +93,9 @@ export async function streamAssistantMessage(
       const generatedImageURLs: string[] = [];
 
       if (imagePrompts) {
-        console.log(imagePrompts)
+        console.log(imagePrompts);
         for (const imagePrompt of imagePrompts) {
-          console.log(imagePrompt)
+          console.log(imagePrompt);
           generatedImageURLs.push(generateImage(imagePrompt));
         }
       }
@@ -95,17 +103,17 @@ export async function streamAssistantMessage(
       // Replace the image prompt substrings with the HTML code for image tags using the generated image URLs
       let updatedContent = content;
       for (let i = 0; i < generatedImageURLs.length; i++) {
-        try{
+        try {
           updatedContent = updatedContent.replace(imagePrompts[i], `<img src="${generatedImageURLs[i]}" alt="${imagePrompts[i]}" />`);
-        }catch(e){
-          console.log(e)
+        } catch (e) {
+          console.log(e);
         }
       }
 
       // Update the content field in the JSON object
       data.content = updatedContent;
 
-      console.log(data)
+      console.log(data);
 
       // Use the updated JSON object as desired
       const updatedJSONStr = JSON.stringify(data, null, 2);
@@ -208,4 +216,3 @@ export async function streamAssistantMessage(
 /**
  * Creates the AI titles for conversations, by taking the last 5 first-lines and asking AI what's that about
  */
-
