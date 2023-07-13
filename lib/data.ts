@@ -1,6 +1,6 @@
-export type SystemPurposeId = 'Catalyst' | 'Custom' | 'Designer' | 'Developer' | 'Executive' | 'Generic' | 'Scientist';
+export type SystemPurposeId = 'Story' | 'Normal' | 'Tour';
 
-export const defaultSystemPurposeId: SystemPurposeId = 'Generic';
+export const defaultSystemPurposeId: SystemPurposeId = 'Normal';
 
 type SystemPurposeData = {
   title: string;
@@ -11,7 +11,7 @@ type SystemPurposeData = {
 };
 
 export const SystemPurposes: { [key in SystemPurposeId]: SystemPurposeData } = {
-  Developer: {
+  Normal: {
     title: 'GPT',
     description: 'Normal Chat GPT Funtionality',
     systemMessage: 'Your sophisticated, accurate, and smart AI assistant',
@@ -23,12 +23,20 @@ export const SystemPurposes: { [key in SystemPurposeId]: SystemPurposeData } = {
     ],
   },
 
-  Catalyst: {
+  Story: {
     title: 'Story Generator',
-    description: 'You can generate kids story using this',
-    systemMessage: '',
+    description: '',
+    systemMessage:
+      'write a story about the message and develop a html page which will contain the story. the story will have different sections. each section will contain a image. each section where image will be added as alt od img tag. make nice formatting using tailwind css. You will send only the html code. Story will no longer be 1000 word.',
     symbol: '🖊️',
     examples: ['Write a story about a boy playing cricket'],
+  },
+  Tour: {
+    title: 'Tour',
+    description: '',
+    systemMessage: '',
+    symbol: '⛱',
+    examples: ['Write a blog about my last tour of Coxs Bazar'],
   },
 };
 
