@@ -525,14 +525,9 @@ export function Composer(props: {
                   Stop
                 </Button>
               ) : (
-                <Button
-                  fullWidth
-                  variant="solid"
-                  color="primary"
-                  disabled={!props.conversationId}
-                  onClick={handleSendClicked}
-                  endDecorator={<TelegramIcon />}
-                ></Button>
+                <Button fullWidth variant="solid" color="primary" disabled={!props.conversationId} onClick={handleSendClicked} endDecorator={<TelegramIcon />}>
+                  Send
+                </Button>
               )}
             </Box>
 

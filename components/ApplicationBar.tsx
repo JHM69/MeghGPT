@@ -20,7 +20,7 @@ import { StyledDropdown } from '@/components/util/StyledDropdown';
 import { StyledDropdownWithSymbol } from '@/components/util/StyledDropdownWithSymbol';
 import { useChatStore } from '@/lib/store-chats';
 import { useSettingsStore } from '@/lib/store-settings';
-
+import Link from 'next/link';
 
 /**
  * The top bar of the application, with the model and purpose selection, and menu/settings icons
@@ -30,23 +30,27 @@ export function ApplicationBar(props: {
   onDownloadConversationJSON: (conversationId: string) => void;
   onPublishConversation: (conversationId: string) => void;
   onShowSettings: () => void;
-  sx?: SxProps
+  sx?: SxProps;
 }) {
   // state
   const [clearConfirmationId, setClearConfirmationId] = React.useState<string | null>(null);
   const [pagesMenuAnchor, setPagesMenuAnchor] = React.useState<HTMLElement | null>(null);
   const [actionsMenuAnchor, setActionsMenuAnchor] = React.useState<HTMLElement | null>(null);
 
-
   // settings
 
   const { mode: colorMode, setMode: setColorMode } = useColorScheme();
 
-  const { freeScroll, setFreeScroll, showSystemMessages, setShowSystemMessages, zenMode } = useSettingsStore(state => ({
-    freeScroll: state.freeScroll, setFreeScroll: state.setFreeScroll,
-    showSystemMessages: state.showSystemMessages, setShowSystemMessages: state.setShowSystemMessages,
-    zenMode: state.zenMode,
-  }), shallow);
+  const { freeScroll, setFreeScroll, showSystemMessages, setShowSystemMessages, zenMode } = useSettingsStore(
+    (state) => ({
+      freeScroll: state.freeScroll,
+      setFreeScroll: state.setFreeScroll,
+      showSystemMessages: state.showSystemMessages,
+      setShowSystemMessages: state.setShowSystemMessages,
+      zenMode: state.zenMode,
+    }),
+    shallow,
+  );
 
   const closePagesMenu = () => setPagesMenuAnchor(null);
 
@@ -64,22 +68,24 @@ export function ApplicationBar(props: {
     closeActionsMenu();
   };
 
-
   // conversation actions
 
-  const { conversationsCount, isConversationEmpty, chatModelId, systemPurposeId, setMessages, setChatModelId, setSystemPurposeId, setAutoTitle } = useChatStore(state => {
-    const conversation = state.conversations.find(conversation => conversation.id === props.conversationId);
-    return {
-      conversationsCount: state.conversations.length,
-      isConversationEmpty: conversation ? !conversation.messages.length : true,
-      chatModelId: conversation ? conversation.chatModelId : null,
-      systemPurposeId: conversation ? conversation.systemPurposeId : null,
-      setMessages: state.setMessages,
-      setChatModelId: state.setChatModelId,
-      setSystemPurposeId: state.setSystemPurposeId,
-      setAutoTitle: state.setAutoTitle,
-    };
-  }, shallow);
+  const { conversationsCount, isConversationEmpty, chatModelId, systemPurposeId, setMessages, setChatModelId, setSystemPurposeId, setAutoTitle } = useChatStore(
+    (state) => {
+      const conversation = state.conversations.find((conversation) => conversation.id === props.conversationId);
+      return {
+        conversationsCount: state.conversations.length,
+        isConversationEmpty: conversation ? !conversation.messages.length : true,
+        chatModelId: conversation ? conversation.chatModelId : null,
+        systemPurposeId: conversation ? conversation.systemPurposeId : null,
+        setMessages: state.setMessages,
+        setChatModelId: state.setChatModelId,
+        setSystemPurposeId: state.setSystemPurposeId,
+        setAutoTitle: state.setAutoTitle,
+      };
+    },
+    shallow,
+  );
 
   const handleConversationClear = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -104,114 +110,136 @@ export function ApplicationBar(props: {
     props.conversationId && props.onDownloadConversationJSON(props.conversationId);
   };
 
-  const handleChatModelChange = (event: any, value: ChatModelId | null) =>
-    value && props.conversationId && setChatModelId(props.conversationId, value);
+  const handleChatModelChange = (event: any, value: ChatModelId | null) => value && props.conversationId && setChatModelId(props.conversationId, value);
 
   const handleSystemPurposeChange = (event: any, value: SystemPurposeId | null) =>
     value && props.conversationId && setSystemPurposeId(props.conversationId, value);
 
+  return (
+    <>
+      {/* Top Bar with 2 icons and Model/Purpose selectors */}
+      <Sheet
+        variant="solid"
+        color="neutral"
+        invertedColors
+        sx={{
+          p: 1,
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          ...(props.sx || {}),
+        }}
+      >
+        <IconButton variant="plain" onClick={(event) => setPagesMenuAnchor(event.currentTarget)}>
+          <Badge variant="solid" size="sm" badgeContent={conversationsCount < 2 ? 0 : conversationsCount}>
+            <MenuIcon />
+          </Badge>
+        </IconButton>
 
-  return <>
+        <Stack direction="row" sx={{ my: 'auto' }}>
+          {/* {chatModelId && <StyledDropdown items={ChatModels} value={chatModelId} onChange={handleChatModelChange} />} */}
 
-    {/* Top Bar with 2 icons and Model/Purpose selectors */}
-    <Sheet
-      variant='solid' color='neutral' invertedColors
-      sx={{
-        p: 1,
-        display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
-        ...(props.sx || {}),
-      }}>
+          {systemPurposeId &&
+            (zenMode === 'cleaner' ? (
+              <StyledDropdown items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
+            ) : (
+              <StyledDropdownWithSymbol items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
+            ))}
 
-      <IconButton variant='plain' onClick={event => setPagesMenuAnchor(event.currentTarget)}>
-        <Badge variant='solid' size='sm' badgeContent={conversationsCount < 2 ? 0 : conversationsCount}>
-          <MenuIcon />
-        </Badge>
-      </IconButton>
+          <Link href="/bookvarse" target="_blank">
+            <button>MeghBuzz Bookvarse</button>
+          </Link>
+        </Stack>
 
-      <Stack direction='row' sx={{ my: 'auto' }}>
+        <IconButton variant="plain" onClick={(event) => setActionsMenuAnchor(event.currentTarget)}>
+          <MoreVertIcon />
+        </IconButton>
+      </Sheet>
 
-        {chatModelId && <StyledDropdown items={ChatModels} value={chatModelId} onChange={handleChatModelChange} />}
+      {/* Left menu */}
+      {<PagesMenu conversationId={props.conversationId} pagesMenuAnchor={pagesMenuAnchor} onClose={closePagesMenu} />}
 
-        {systemPurposeId && (zenMode === 'cleaner'
-            ? <StyledDropdown items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
-            : <StyledDropdownWithSymbol items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
-        )}
+      {/* Right menu */}
+      <Menu
+        variant="plain"
+        color="neutral"
+        size="lg"
+        placement="bottom-end"
+        sx={{ minWidth: 280 }}
+        open={!!actionsMenuAnchor}
+        anchorEl={actionsMenuAnchor}
+        onClose={closeActionsMenu}
+        disablePortal={false}
+      >
+        <MenuItem>
+          <ListItemDecorator>
+            <DarkModeIcon />
+          </ListItemDecorator>
+          Dark
+          <Switch checked={colorMode === 'dark'} onChange={handleDarkModeToggle} sx={{ ml: 'auto' }} />
+        </MenuItem>
 
-      </Stack>
+        <MenuItem>
+          <ListItemDecorator>
+            <SettingsSuggestIcon />
+          </ListItemDecorator>
+          System text
+          <Switch checked={showSystemMessages} onChange={handleSystemMessagesToggle} sx={{ ml: 'auto' }} />
+        </MenuItem>
 
-      <IconButton variant='plain' onClick={event => setActionsMenuAnchor(event.currentTarget)}>
-        <MoreVertIcon />
-      </IconButton>
-    </Sheet>
+        <MenuItem>
+          <ListItemDecorator>
+            <SwapVertIcon />
+          </ListItemDecorator>
+          Free scroll
+          <Switch checked={freeScroll} onChange={handleScrollModeToggle} sx={{ ml: 'auto' }} />
+        </MenuItem>
 
+        <MenuItem onClick={handleActionShowSettings}>
+          <ListItemDecorator>
+            <SettingsOutlinedIcon />
+          </ListItemDecorator>
+          Settings
+        </MenuItem>
 
-    {/* Left menu */}
-    {<PagesMenu conversationId={props.conversationId} pagesMenuAnchor={pagesMenuAnchor} onClose={closePagesMenu} />}
+        <ListDivider />
 
+        <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationDownload}>
+          <ListItemDecorator>
+            {/*<Badge size='sm' color='danger'>*/}
+            <FileDownloadIcon />
+            {/*</Badge>*/}
+          </ListItemDecorator>
+          Download JSON
+        </MenuItem>
 
-    {/* Right menu */}
-    <Menu
-      variant='plain' color='neutral' size='lg' placement='bottom-end' sx={{ minWidth: 280 }}
-      open={!!actionsMenuAnchor} anchorEl={actionsMenuAnchor} onClose={closeActionsMenu}
-      disablePortal={false}>
+        <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationPublish}>
+          <ListItemDecorator>
+            {/*<Badge size='sm' color='primary'>*/}
+            <ExitToAppIcon />
+            {/*</Badge>*/}
+          </ListItemDecorator>
+          Share via paste.gg
+        </MenuItem>
 
-      <MenuItem>
-        <ListItemDecorator><DarkModeIcon /></ListItemDecorator>
-        Dark
-        <Switch checked={colorMode === 'dark'} onChange={handleDarkModeToggle} sx={{ ml: 'auto' }} />
-      </MenuItem>
+        <ListDivider />
 
-      <MenuItem>
-        <ListItemDecorator><SettingsSuggestIcon /></ListItemDecorator>
-        System text
-        <Switch checked={showSystemMessages} onChange={handleSystemMessagesToggle} sx={{ ml: 'auto' }} />
-      </MenuItem>
+        <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationClear}>
+          <ListItemDecorator>
+            <ClearIcon />
+          </ListItemDecorator>
+          Clear conversation
+        </MenuItem>
+      </Menu>
 
-      <MenuItem>
-        <ListItemDecorator><SwapVertIcon /></ListItemDecorator>
-        Free scroll
-        <Switch checked={freeScroll} onChange={handleScrollModeToggle} sx={{ ml: 'auto' }} />
-      </MenuItem>
-
-      <MenuItem onClick={handleActionShowSettings}>
-        <ListItemDecorator><SettingsOutlinedIcon /></ListItemDecorator>
-        Settings
-      </MenuItem>
-
-      <ListDivider />
-
-      <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationDownload}>
-        <ListItemDecorator>
-          {/*<Badge size='sm' color='danger'>*/}
-          <FileDownloadIcon />
-          {/*</Badge>*/}
-        </ListItemDecorator>
-        Download JSON
-      </MenuItem>
-
-      <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationPublish}>
-        <ListItemDecorator>
-          {/*<Badge size='sm' color='primary'>*/}
-          <ExitToAppIcon />
-          {/*</Badge>*/}
-        </ListItemDecorator>
-        Share via paste.gg
-      </MenuItem>
-
-      <ListDivider />
-
-      <MenuItem disabled={!props.conversationId || isConversationEmpty} onClick={handleConversationClear}>
-        <ListItemDecorator><ClearIcon /></ListItemDecorator>
-        Clear conversation
-      </MenuItem>
-    </Menu>
-
-
-    {/* Confirmations */}
-    <ConfirmationModal
-      open={!!clearConfirmationId} onClose={() => setClearConfirmationId(null)} onPositive={handleConfirmedClearConversation}
-      confirmationText={'Are you sure you want to discard all the messages?'} positiveActionText={'Clear conversation'}
-    />
-
-  </>;
+      {/* Confirmations */}
+      <ConfirmationModal
+        open={!!clearConfirmationId}
+        onClose={() => setClearConfirmationId(null)}
+        onPositive={handleConfirmedClearConversation}
+        confirmationText={'Are you sure you want to discard all the messages?'}
+        positiveActionText={'Clear conversation'}
+      />
+    </>
+  );
 }
