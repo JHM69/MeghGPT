@@ -166,7 +166,7 @@ export function ApplicationBar(props: {
       </Sheet>
 
       {/* Left menu */}
-      {<PagesMenu conversationId={props.conversationId} pagesMenuAnchor={pagesMenuAnchor} onClose={closePagesMenu} />}
+      {/* {<PagesMenu conversationId={props.conversationId} pagesMenuAnchor={pagesMenuAnchor} onClose={closePagesMenu} />} */}
 
       {/* Confirmations */}
       <ConfirmationModal
