@@ -8,6 +8,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { createEmotionCache, theme } from '@/lib/theme';
 import '../styles/GithubMarkdown.css';
+import '../styles/storyVerse.css';
+import '../styles/read.css';
+
 
 import { SessionProvider } from 'next-auth/react';
 

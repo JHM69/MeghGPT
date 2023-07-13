@@ -1,0 +1,147 @@
+/* Custom Styles */
+body {
+  position: relative;
+  font-family: 'Roboto', sans-serif;
+  color: #fff;
+  background: linear-gradient(-45deg, #af00c6, #4c00a4, #b5055f, #4c00a4, #af00c6, #af00c6, #4c00a4, #af00c6);
+  background-size: 1000% 1000%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.header {
+  background: linear-gradient(to right, #fecd00, #ad1af1);
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.header .image {
+  margin-left: 0px;
+}
+
+
+
+.header img {
+  max-width: 200px;
+}
+
+.search-button {
+  background-color: #ad1af1;
+  color: #fff;
+}
+
+.book-card {
+  background-color: #000;
+  color: #fff;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+}
+
+.book-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%);
+  z-index: 1;
+}
+
+.book-card .bg-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.book-card .bg-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(100%);
+}
+
+.book-card .content {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 2;
+}
+
+.book-card h3 {
+  color: #ffffff;
+}
+
+.book-card p {
+  color: #e6e6e6;
+}
+
+.book-card .like-count {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Adjustments for Available Books section */
+.book-listing {
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.book-card .mb-4 {
+  flex-grow: 1;
+}
+
+.view-button,
+.download-button {
+  background-color: transparent;
+  border: 2px solid #fff;
+}
+
+.view-button:hover,
+.download-button:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+.footer {
+  background-color: #19063f;
+  padding: 10px;
+  text-align: center;
+  color: #fff;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer a {
+  color: #fff;
+}

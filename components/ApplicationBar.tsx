@@ -145,56 +145,28 @@ export function ApplicationBar(props: {
             ) : (
               <StyledDropdownWithSymbol items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
             ))}
-          <button>
+          <button style={{
+              backgroundColor: '#8600ff',
+              color: '#fff',
+              padding: '10px 20px',
+              display: 'flex',
+              borderRadius: '10px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              alignItems: 'items-center',
+            }}
+          >
             {' '}
             <Link href="/bookvarse" target="_blank">
-              MeghBuzz Bookvarse
+              Go to StoryVerse
             </Link>{' '}
           </button>
         </Stack>
-
-        <IconButton variant="plain" onClick={(event) => setActionsMenuAnchor(event.currentTarget)}>
-          <MoreVertIcon />
-        </IconButton>
+        
       </Sheet>
 
       {/* Left menu */}
       {<PagesMenu conversationId={props.conversationId} pagesMenuAnchor={pagesMenuAnchor} onClose={closePagesMenu} />}
-
-      {/* Right menu */}
-      <Menu
-        variant="plain"
-        color="neutral"
-        size="lg"
-        placement="bottom-end"
-        sx={{ minWidth: 280 }}
-        open={!!actionsMenuAnchor}
-        anchorEl={actionsMenuAnchor}
-        onClose={closeActionsMenu}
-        disablePortal={false}
-      >
-        <MenuItem>
-          <ListItemDecorator>
-            <DarkModeIcon />
-          </ListItemDecorator>
-          Dark
-          <Switch checked={colorMode === 'dark'} onChange={handleDarkModeToggle} sx={{ ml: 'auto' }} />
-        </MenuItem>
-
-        {/* <MenuItem onClick={handleActionShowSettings}>
-          <ListItemDecorator>
-            <SettingsOutlinedIcon />
-          </ListItemDecorator>
-          Settings
-        </MenuItem> */}
-
-        <MenuItem onClick={handleLogut}>
-          <ListItemDecorator>
-            <Login />
-          </ListItemDecorator>
-          Log Out
-        </MenuItem>
-      </Menu>
 
       {/* Confirmations */}
       <ConfirmationModal

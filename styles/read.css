@@ -1,0 +1,115 @@
+body {
+    position: relative;
+    font-family: 'Roboto', sans-serif;
+    color: #000000;            
+    background-size: 1000% 1000%;
+    padding: 0;
+    margin: 0;            
+}
+
+.headerRead {
+    background: linear-gradient(to right, #fecd00, #ad1af1);
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerRead .image {
+    margin-left: 0px;
+    height: 40px;
+}
+
+.headerRead img {
+    max-width: 200px;
+}
+
+.containerRead {
+    max-width: 70%;
+    margin: auto auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.book-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.book-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.book-author {
+    font-size: 18px;
+    color: #666;
+    margin-left: 10px;
+}
+
+.back-button {
+    display: inline-block;
+    margin-top: 20px;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.back-button i {
+    margin-right: 5px;
+}
+
+.back-button:hover {
+    color: #ad1af1;
+}
+
+.read-aloud-button {
+    background-color: transparent;
+    color: #ad1af1;
+    border: 2px solid #ad1af1;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.read-aloud-button:hover {
+    background-color: #ad1af1;
+    color: #fff;
+}
+
+.footerRead {
+    background-color: #19063f;
+    padding: 10px;
+    text-align: center;
+    color: #fff;
+}
+
+.footerRead a {
+    color: #fff;
+}
+.headerRead .generate {
+    background-color: rgba(124,58,237,1);
+    color: #fff;
+    border: 2px solid #ad1af1;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.headerRead .generate:hover {
+    background-color: rgba(109,40,217,1);
+    color: #fff;            
+}
+.headerRead .generate a {
+    color: #fff;
+    text-decoration: inherit;
+}
