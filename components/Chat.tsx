@@ -168,7 +168,7 @@ export function Chat(props: { onShowSettings: () => void; sx?: SxProps }) {
           bottom: 0,
           zIndex: 21,
           background: theme.vars.palette.background.surface,
-          backgroundColor: '#EFE1D1',
+          backgroundColor: '#A084DC',
           borderTop: `1px solid ${theme.vars.palette.divider}`,
           p: { xs: 1, md: 2 },
         }}

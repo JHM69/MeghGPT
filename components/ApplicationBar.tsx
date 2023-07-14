@@ -147,18 +147,18 @@ export function ApplicationBar(props: {
             ) : (
               <StyledDropdownWithSymbol items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
             ))}
+          
+          <button style={{
+            backgroundColor: '#8600ff',
+            color: '#fff',
+            padding: '10px 20px',
+            display: 'flex',
+            borderRadius: '10px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            alignItems: 'items-center',
+          }}
 
-          <button
-            style={{
-              backgroundColor: '#8600ff',
-              color: '#fff',
-              padding: '10px 20px',
-              display: 'flex',
-              borderRadius: '10px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              alignItems: 'items-center',
-            }}
           >
             <Link href="/bookvarse" target="_blank">
               Go to StoryVerse
