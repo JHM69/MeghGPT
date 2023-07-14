@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createParser } from 'eventsource-parser';
 
-import { ApiChatInput, chatCompletionPayload, extractOpenaiChatInputs, postToOpenAI } from './chat';
+import { ApiChatInput, chatCompletionPayload, extractOpenaiChatInputs, postToOpenAI } from '../chat';
 import { OpenAIAPI } from '@/types/api-openai';
 
-
 async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Promise<ReadableStream> {
-
   // Handle the abort event when the connection is closed by the client
   signal.addEventListener('abort', () => {
     console.log('Client closed the connection.');
@@ -20,9 +18,10 @@ async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Pro
     upstreamResponse = await postToOpenAI(input.api, '/v1/chat/completions', chatCompletionPayload(input, true), signal);
   } catch (error: any) {
     console.log(error);
-    const message = '[OpenAI Issue] ' + (error?.message || typeof error === 'string' ? error : JSON.stringify(error)) + (error?.cause ? ' · ' + error.cause : '');
+    const message =
+      '[OpenAI Issue] ' + (error?.message || typeof error === 'string' ? error : JSON.stringify(error)) + (error?.cause ? ' · ' + error.cause : '');
     return new ReadableStream({
-      start: controller => {
+      start: (controller) => {
         controller.enqueue(encoder.encode(message));
         controller.close();
       },
@@ -32,16 +31,13 @@ async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Pro
   // decoding and re-encoding loop
 
   const onReadableStreamStart = async (controller: ReadableStreamDefaultController) => {
-
     let hasBegun = false;
 
     // stream response (SSE) from OpenAI is split into multiple chunks. this function
     // will parse the event into a text stream, and re-emit it to the client
-    const upstreamParser = createParser(event => {
-
+    const upstreamParser = createParser((event) => {
       // ignore reconnect interval
-      if (event.type !== 'event')
-        return;
+      if (event.type !== 'event') return;
 
       // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
       if (event.data === '[DONE]') {
@@ -53,8 +49,7 @@ async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Pro
         const json: OpenAIAPI.Chat.CompletionsResponseChunked = JSON.parse(event.data);
 
         // ignore any 'role' delta update
-        if (json.choices[0].delta?.role)
-          return;
+        if (json.choices[0].delta?.role) return;
 
         // stringify and send the first packet as a JSON object
         if (!hasBegun) {
@@ -68,7 +63,6 @@ async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Pro
         // transmit the text stream
         const text = json.choices[0].delta?.content || '';
         controller.enqueue(encoder.encode(text));
-
       } catch (error) {
         // maybe parse error
         console.error('Error parsing OpenAI response', error);
@@ -78,9 +72,7 @@ async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Pro
 
     // https://web.dev/streams/#asynchronous-iteration
     const decoder = new TextDecoder();
-    for await (const upstreamChunk of upstreamResponse.body as any)
-      upstreamParser.feed(decoder.decode(upstreamChunk, { stream: true }));
-
+    for await (const upstreamChunk of upstreamResponse.body as any) upstreamParser.feed(decoder.decode(upstreamChunk, { stream: true }));
   };
 
   return new ReadableStream({
@@ -88,7 +80,6 @@ async function chatStreamRepeater(input: ApiChatInput, signal: AbortSignal): Pro
     cancel: (reason) => console.log('chatStreamRepeater cancelled', reason),
   });
 }
-
 
 /**
  * The client will be sent a stream of words. As an extra (an totally optional) 'data channel' we send a
@@ -116,7 +107,7 @@ export default async function handler(req: NextRequest): Promise<Response> {
       return new NextResponse(`[Issue] ${error}`, { status: 400 });
     }
   }
-};
+}
 
 //noinspection JSUnusedGlobalSymbols
 export const config = {

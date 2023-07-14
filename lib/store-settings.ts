@@ -1,15 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-
 /// Settings Store
 
 interface SettingsStore {
-
   // UI settings
 
-  centerMode: 'narrow' | 'wide' | 'full';
-  setCenterMode: (centerMode: 'narrow' | 'wide' | 'full') => void;
+  centerMode: 'full' | 'wide' | 'narrow';
+  setCenterMode: (centerMode: 'full' | 'wide' | 'narrow') => void;
 
   freeScroll: boolean;
   setFreeScroll: (freeScroll: boolean) => void;
@@ -53,17 +51,15 @@ interface SettingsStore {
 
   elevenLabsAutoSpeak: 'off' | 'firstLine';
   setElevenLabsAutoSpeak: (autoSpeak: 'off' | 'firstLine') => void;
-
 }
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
-
       // UI settings
 
-      centerMode: 'wide',
-      setCenterMode: (centerMode: 'narrow' | 'wide' | 'full') => set({ centerMode }),
+      centerMode: 'full',
+      setCenterMode: (centerMode: 'full' | 'wide' | 'narrow') => set({ centerMode }),
 
       freeScroll: false,
       setFreeScroll: (freeScroll: boolean) => set({ freeScroll }),
@@ -82,7 +78,7 @@ export const useSettingsStore = create<SettingsStore>()(
 
       // OpenAI API settings
 
-      apiKey: (function() {
+      apiKey: (function () {
         // this will be removed in April
         if (typeof localStorage === 'undefined') return '';
         return localStorage.getItem('app-settings-openai-api-key') || '';
@@ -111,34 +107,31 @@ export const useSettingsStore = create<SettingsStore>()(
 
       elevenLabsAutoSpeak: 'firstLine',
       setElevenLabsAutoSpeak: (elevenLabsAutoSpeak: 'off' | 'firstLine') => set({ elevenLabsAutoSpeak }),
-
     }),
     {
       name: 'app-settings',
-    }),
+    },
+  ),
 );
-
 
 /// Composer Store
 
 interface ComposerStore {
-
   // state
   sentMessages: {
-    date: number,
-    text: string,
-    count: number,
+    date: number;
+    text: string;
+    count: number;
   }[];
 
   // actions
   appendSentMessage: (text: string) => void;
   clearSentMessages: () => void;
-
 }
 
 export const useComposerStore = create<ComposerStore>()(
-  persist((set, get) => ({
-
+  persist(
+    (set, get) => ({
       sentMessages: [],
 
       appendSentMessage: (text: string) => {
@@ -151,8 +144,7 @@ export const useComposerStore = create<ComposerStore>()(
           list.splice(list.indexOf(item), 1);
           item.date = date;
           item.count++;
-        } else
-          item = { date, text, count: 1 };
+        } else item = { date, text, count: 1 };
 
         // prepend the item
         list.unshift(item);
@@ -162,7 +154,6 @@ export const useComposerStore = create<ComposerStore>()(
       },
 
       clearSentMessages: () => set({ sentMessages: [] }),
-
     }),
     {
       name: 'app-composer',
@@ -175,5 +166,6 @@ export const useComposerStore = create<ComposerStore>()(
         }
         return state as ComposerStore;
       },
-    }),
+    },
+  ),
 );

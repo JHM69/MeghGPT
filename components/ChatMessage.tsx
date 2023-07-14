@@ -42,24 +42,24 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ShapeLineOutlinedIcon from '@mui/icons-material/ShapeLineOutlined';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, OpenAIApi } from 'openai';
 
 import { DMessage } from '@/lib/store-chats';
-import { InlineTextEdit } from '@/components/util/InlineTextEdit';
 import { Link } from '@/components/util/Link';
-import { OpenInCodepen } from '@/components/OpenInCodepen';
-import { OpenInReplit } from '@/components/OpenInReplit';
 import { SystemPurposeId, SystemPurposes } from '@/lib/data';
 import { cssRainbowColorKeyframes } from '@/lib/theme';
 import { prettyBaseModel } from '@/lib/publish';
 import { requireUserKeyElevenLabs } from '@/components/dialogs/SettingsModal';
 import { speakText } from '@/lib/text-to-speech';
 import { useSettingsStore } from '@/lib/store-settings';
+import { Person, Person2Outlined, Person4Rounded } from '@mui/icons-material';
+import RenderImage from './RenderImage';
 
 /// Utilities to parse messages into blocks of text and code
 
-type Block = TextBlock | CodeBlock;
+type Block = TextBlock | CodeBlock | ImgBlock;
 type TextBlock = { type: 'text'; content: string };
+type ImgBlock = { type: 'img'; content: string };
 type CodeBlock = { type: 'code'; content: string; language: string | null; complete: boolean; code: string };
 
 const inferCodeLanguage = (markdownLanguage: string, code: string): string | null => {
@@ -163,8 +163,7 @@ const parseBlocks = (forceText: boolean, text: string): Block[] => {
       const imgTagEndIndex = text.indexOf('/>', match.index) + 2;
       const imgTag = text.slice(match.index, imgTagEndIndex);
       result.push({ type: 'img', content: imgTag });
-  }
-
+    }
 
     result.push({ type: 'code', content: highlightedCode, language: codeLanguage, complete: blockEnd.startsWith('```'), code });
     lastIndex = match.index + match[0].length;
@@ -195,8 +194,6 @@ function RenderCode(props: { codeBlock: CodeBlock; sx?: SxProps }) {
     e.stopPropagation();
     copyToClipboard(props.codeBlock.code);
   };
-
-  
 
   return (
     <Box
@@ -279,7 +276,7 @@ const RenderText = ({ textBlock }: { textBlock: TextBlock }) => (
       whiteSpace: 'break-spaces',
     }}
   >
-    {textBlock.content}
+    <div dangerouslySetInnerHTML={{ __html: textBlock.content }} />
   </Typography>
 );
 
@@ -297,18 +294,12 @@ function explainErrorInMessage(text: string, isAssistant: boolean, modelId?: str
   if (isAssistantError) {
     if (text.startsWith('OpenAI API error: 429 Too Many Requests')) {
       // TODO: retry at the api/chat level a few times instead of showing this error
-      errorMessage = (
-        <>
-         Too many requests. Hold on!
-        </>
-      );
+      errorMessage = <>Too many requests. Hold on!</>;
     } else if (text.includes('"model_not_found"')) {
       // note that "model_not_found" is different than "The model `gpt-xyz` does not exist" message
       errorMessage = (
         <>
-          The API key appears to be unauthorized for {modelId || 'this model'}. You can change to <b>GPT-3.5 Turbo</b> and simultaneously{' '}
-         
-          to the desired model.
+          The API key appears to be unauthorized for {modelId || 'this model'}. You can change to <b>GPT-3.5 Turbo</b> and simultaneously to the desired model.
         </>
       );
     } else if (text.includes('"context_length_exceeded"')) {
@@ -420,12 +411,6 @@ export function ChatMessage(props: {
     closeOperationsMenu();
   };
 
-  const handleMenuRunAgain = (e: React.MouseEvent) => {
-    e.preventDefault();
-    props.onMessageRunFrom(fromAssistant ? -1 : 0);
-    closeOperationsMenu();
-  };
-
   const handleTextEdited = (editedText: string) => {
     setIsEditing(false);
     if (editedText?.trim() && editedText !== messageText) props.onMessageEdit(editedText);
@@ -487,9 +472,9 @@ export function ChatMessage(props: {
               {symbol}
             </Box>
           );
-        return <SmartToyOutlinedIcon sx={{ width: 40, height: 40 }} />; // https://mui.com/static/images/avatar/2.jpg
+        return <SmartToyOutlinedIcon sx={{ width: 40, height: 40 }} />;
       case 'user':
-        return <Face6Icon sx={{ width: 40, height: 40 }} />; // https://www.svgrepo.com/show/306500/openai.svg
+        return <Person sx={{ width: 40, height: 40 }} />;
     }
     return <Avatar alt={messageSender} />;
   }, [messageAvatar, messageRole, messagePurposeId, messageSender, messageTyping, showAvatars]);
@@ -541,38 +526,52 @@ export function ChatMessage(props: {
           onMouseLeave={() => setIsHovering(false)}
           onClick={(event) => setMenuAnchor(event.currentTarget)}
         >
-          {isHovering ? (
-            <IconButton variant="soft" color={fromAssistant ? 'neutral' : 'primary'}>
-              <MoreVertIcon />
-            </IconButton>
+          {fromUser ? (
+            <Person
+              style={{
+                height: '48',
+                width: '48',
+              }}
+            />
           ) : (
-            avatarEl
-          )}
+            <div className="flex flex-col items-center">
+              <img
+                height={48}
+                className="rounded"
+                width={48}
+                src="https://i.ibb.co/qjjNSzk/megh-GPT-2.png?fbclid=IwAR0Zj-aUzCAUQtMNiqj-F3tpnSOd2mh127tHHpN_twFByVB2-3OzF6LQqcI"
+              />
 
-          {fromAssistant && (
-            <Tooltip title={messageModelId || 'unk-model'} variant="solid">
-              <Typography
-                level="body2"
-                sx={messageTyping ? { animation: `${cssRainbowColorKeyframes} 5s linear infinite`, fontWeight: 500 } : { fontWeight: 500 }}
+              <IconButton
+                variant="outlined"
+                color="neutral"
+                onClick={handleMenuCopy}
+                sx={{
+                  position: 'absolute',
+                  ...(fromAssistant ? { right: { xs: 12, md: 28 } } : { left: { xs: 12, md: 28 } }),
+                  zIndex: 10,
+                  opacity: 0,
+                  transition: 'opacity 0.3s',
+                }}
               >
-                {prettyBaseModel(messageModelId)}
-              </Typography>
-            </Tooltip>
+                <ContentCopyIcon />
+              </IconButton>
+            </div>
           )}
         </Stack>
       )}
 
       {/* Edit / Blocks */}
-      {!isEditing ? (
-        <Box sx={{ ...cssBlocks, flexGrow: 0 }} onDoubleClick={handleMenuEdit}>
-          {fromSystem && wasEdited && (
-            <Typography level="body2" color="warning" sx={{ mt: 1, mx: 1.5 }}>
-              modified by user - auto-update disabled
-            </Typography>
-          )}
 
-          {!errorMessage &&
-            parseBlocks(fromSystem, collapsedText).map((block, index) =>
+      <Box sx={{ ...cssBlocks, flexGrow: 0 }} onDoubleClick={handleMenuEdit}>
+        {fromSystem && wasEdited && (
+          <Typography level="body2" color="warning" sx={{ mt: 1, mx: 1.5 }}>
+            modified by user - auto-update disabled
+          </Typography>
+        )}
+
+        {!errorMessage &&
+          parseBlocks(fromSystem, collapsedText).map((block, index) =>
             block.type === 'code' ? (
               <RenderCode key={'code-' + index} codeBlock={block} sx={cssCode} />
             ) : block.type === 'img' ? (
@@ -581,95 +580,41 @@ export function ChatMessage(props: {
               <RenderMarkdown key={'text-md-' + index} textBlock={block} />
             ) : (
               <RenderText key={'text-' + index} textBlock={block} />
-            )
-            
-            )}
-
-          {errorMessage && (
-            <Tooltip title={<Typography sx={{ maxWidth: 800 }}>{collapsedText}</Typography>} variant="soft">
-              <Alert variant="soft" color="warning" sx={{ mt: 1 }}>
-                <Typography>{errorMessage}</Typography>
-              </Alert>
-            </Tooltip>
+            ),
           )}
 
-          {isCollapsed && (
-            <Button variant="plain" onClick={handleExpand}>
-              ... expand ...
-            </Button>
-          )}
-        </Box>
-      ) : (
-        <InlineTextEdit initialText={messageText} onEdit={handleTextEdited} sx={{ ...cssBlocks, flexGrow: 1 }} />
-      )}
+        {errorMessage && (
+          <Tooltip title={<Typography sx={{ maxWidth: 800 }}>{collapsedText}</Typography>} variant="soft">
+            <Alert variant="soft" color="warning" sx={{ mt: 1 }}>
+              <Typography>{errorMessage}</Typography>
+            </Alert>
+          </Tooltip>
+        )}
+
+        {isCollapsed && (
+          <Button variant="plain" onClick={handleExpand}>
+            ... expand ...
+          </Button>
+        )}
+      </Box>
 
       {/* Copy message */}
-      {!fromSystem && !isEditing && (
-        <Tooltip title={fromAssistant ? 'Copy response' : 'Copy input'} variant="solid">
-          <IconButton
-            variant="outlined"
-            color="neutral"
-            onClick={handleMenuCopy}
-            sx={{
-              position: 'absolute',
-              ...(fromAssistant ? { right: { xs: 12, md: 28 } } : { left: { xs: 12, md: 28 } }),
-              zIndex: 10,
-              opacity: 0,
-              transition: 'opacity 0.3s',
-            }}
-          >
-            <ContentCopyIcon />
-          </IconButton>
-        </Tooltip>
-      )}
 
       {/* Message Operations menu */}
       {!!menuAnchor && (
-        <Menu variant="plain" color="neutral" size="lg" placement="bottom-end" sx={{ minWidth: 280 }} open anchorEl={menuAnchor} onClose={closeOperationsMenu}>
+        <Menu variant="plain" color="neutral" size="sm" placement="auto" sx={{ minWidth: 60 }} open anchorEl={menuAnchor} onClose={closeOperationsMenu}>
           <MenuItem onClick={handleMenuCopy}>
             <ListItemDecorator>
               <ContentCopyIcon />
             </ListItemDecorator>
-            Copy
           </MenuItem>
           {isSpeakable && (
             <MenuItem onClick={handleMenuSpeak}>
               <ListItemDecorator>
                 <RecordVoiceOverIcon />
               </ListItemDecorator>
-              Speak
             </MenuItem>
           )}
-          <MenuItem onClick={handleMenuEdit}>
-            <ListItemDecorator>
-              <EditIcon />
-            </ListItemDecorator>
-            {isEditing ? 'Discard' : 'Edit'}
-            {!isEditing && <span style={{ opacity: 0.5, marginLeft: '8px' }}> (double-click)</span>}
-          </MenuItem>
-          <ListDivider />
-          {fromAssistant && (
-            <MenuItem onClick={handleMenuRunAgain}>
-              <ListItemDecorator>
-                <ReplayIcon />
-              </ListItemDecorator>
-              Retry
-            </MenuItem>
-          )}
-          {fromUser && (
-            <MenuItem onClick={handleMenuRunAgain}>
-              <ListItemDecorator>
-                <FastForwardIcon />
-              </ListItemDecorator>
-              {props.isLast ? 'Run Again' : 'Restart From Here'}
-            </MenuItem>
-          )}
-          <MenuItem onClick={props.onMessageDelete} disabled={false /*fromSystem*/}>
-            <ListItemDecorator>
-              <ClearIcon />
-            </ListItemDecorator>
-            Delete
-          </MenuItem>
         </Menu>
       )}
     </ListItem>
