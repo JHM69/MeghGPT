@@ -52,8 +52,9 @@ import { prettyBaseModel } from '@/lib/publish';
 import { requireUserKeyElevenLabs } from '@/components/dialogs/SettingsModal';
 import { speakText } from '@/lib/text-to-speech';
 import { useSettingsStore } from '@/lib/store-settings';
-import { Person, Person2Outlined, Person4Rounded } from '@mui/icons-material';
+import { Download, Person, Person2Outlined, Person4Rounded, Share } from '@mui/icons-material';
 import RenderImage from './RenderImage';
+import axios from 'axios';
 
 /// Utilities to parse messages into blocks of text and code
 
@@ -393,9 +394,87 @@ export function ChatMessage(props: {
 
   const closeOperationsMenu = () => setMenuAnchor(null);
 
+  function downloadPdf(url: string) {
+    console.log(url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = url.substring(url.lastIndexOf('/') + 1);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   const handleMenuCopy = (e: React.MouseEvent) => {
     copyToClipboard(messageText);
     e.preventDefault();
+    closeOperationsMenu();
+  };
+
+  const generatePdf = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    const html = messageText;
+
+    try {
+      const response = await fetch('/api/generatePdf', {
+        method: 'POST',
+        body: JSON.stringify({ html }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const { url } = await response.json();
+
+      console.log(url);
+
+      downloadPdf(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+
+    closeOperationsMenu();
+  };
+
+  const sharePdf = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    const html = messageText;
+
+    try {
+      const response = await fetch('/api/generatePdf', {
+        method: 'POST',
+        body: JSON.stringify({ html }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const { url } = await response.json();
+
+      console.log(url);
+
+      axios
+        .post('/api/publish_book', { messageText, url })
+        .then((response) => {
+          alert('Book Shared !');
+        })
+        .catch((error) => {
+          console.error('Error updating book visibility:', error);
+          // Handle error
+        });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+
     closeOperationsMenu();
   };
 
@@ -409,11 +488,6 @@ export function ChatMessage(props: {
     setIsEditing(!isEditing);
     e.preventDefault();
     closeOperationsMenu();
-  };
-
-  const handleTextEdited = (editedText: string) => {
-    setIsEditing(false);
-    if (editedText?.trim() && editedText !== messageText) props.onMessageEdit(editedText);
   };
 
   const handleExpand = () => setForceExpanded(true);
@@ -602,16 +676,29 @@ export function ChatMessage(props: {
 
       {/* Message Operations menu */}
       {!!menuAnchor && (
-        <Menu variant="plain" color="neutral" size="sm" placement="auto" sx={{ minWidth: 60 }} open anchorEl={menuAnchor} onClose={closeOperationsMenu}>
-          <MenuItem onClick={handleMenuCopy}>
+        <Menu variant="plain" color="neutral" size="sm" placement="auto" sx={{ minWidth: 120 }} open anchorEl={menuAnchor} onClose={closeOperationsMenu}>
+          <MenuItem onClick={generatePdf}>
             <ListItemDecorator>
-              <ContentCopyIcon />
+              <Download /> Generate PDF
             </ListItemDecorator>
           </MenuItem>
+
+          <MenuItem onClick={sharePdf}>
+            <ListItemDecorator>
+              <Share /> Share to StoryVerse
+            </ListItemDecorator>
+          </MenuItem>
+
+          <MenuItem onClick={handleMenuCopy}>
+            <ListItemDecorator>
+              <ContentCopyIcon /> Copy
+            </ListItemDecorator>
+          </MenuItem>
+
           {isSpeakable && (
             <MenuItem onClick={handleMenuSpeak}>
               <ListItemDecorator>
-                <RecordVoiceOverIcon />
+                <RecordVoiceOverIcon /> Speak
               </ListItemDecorator>
             </MenuItem>
           )}

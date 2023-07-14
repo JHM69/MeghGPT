@@ -130,17 +130,13 @@ export function ApplicationBar(props: {
           ...(props.sx || {}),
         }}
       >
-
-          <IconButton variant="plain" onClick={(event) => setPagesMenuAnchor(event.currentTarget)}>        
-
+        <IconButton variant="plain" onClick={(event) => setPagesMenuAnchor(event.currentTarget)}>
           <div className="banner-container mx-auto">
             <img className="banner" src="https://i.ibb.co/Lg2ctwf/megh-gpt.gif" alt="Story-Verse-1" />
           </div>
-          </IconButton>
-        
+        </IconButton>
 
         <IconButton variant="plain" onClick={(event) => setPagesMenuAnchor(event.currentTarget)}></IconButton>
-
 
         <Stack direction="row" sx={{ my: 'auto' }}>
           {/* {chatModelId && <StyledDropdown items={ChatModels} value={chatModelId} onChange={handleChatModelChange} />} */}
@@ -151,27 +147,25 @@ export function ApplicationBar(props: {
             ) : (
               <StyledDropdownWithSymbol items={SystemPurposes} value={systemPurposeId} onChange={handleSystemPurposeChange} />
             ))}
+
+          <button
+            style={{
+              backgroundColor: '#8600ff',
+              color: '#fff',
+              padding: '10px 20px',
+              display: 'flex',
+              borderRadius: '10px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              alignItems: 'items-center',
+            }}
           >
-            {' '}
             <Link href="/bookvarse" target="_blank">
               Go to StoryVerse
             </Link>{' '}
           </button>
         </Stack>
-
       </Sheet>
-
-      {/* Left menu */}
-      {/* {<PagesMenu conversationId={props.conversationId} pagesMenuAnchor={pagesMenuAnchor} onClose={closePagesMenu} />} */}
-
-      {/* Confirmations */}
-      <ConfirmationModal
-        open={!!clearConfirmationId}
-        onClose={() => setClearConfirmationId(null)}
-        onPositive={handleSignOut}
-        confirmationText={'Are you sure you want to log out ?'}
-        positiveActionText={'Log Out'}
-      />
     </>
   );
 }

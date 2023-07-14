@@ -1,17 +1,15 @@
-import { ApiChatInput, ApiChatResponse } from '../pages/api/openai/chat';
 import { DMessage, useChatStore } from '@/lib/store-chats';
 import { fastChatModelId } from '@/lib/data';
 import { useSettingsStore } from '@/lib/store-settings';
 import { json } from 'stream/consumers';
 import { Configuration, OpenAIApi } from 'openai';
-import { PrismaClient } from '@prisma/client';
+import { Book, PrismaClient } from '@prisma/client';
+import { ApiChatInput, ApiChatResponse } from 'pages/api/chat';
+import axios from 'axios';
 
 /**
  * Main function to send the chat to the assistant and receive a response (streaming)
  */
-
-
-
 
 const configuration = new Configuration({
   apiKey: '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',
@@ -35,12 +33,10 @@ const generateImage = async (prompt: string) => {
   }
 };
 
-
-async function addBookToDatabase(book : Book){
+async function addBookToDatabase(book: Book) {
   await prisma?.book.create({
-   data : book,
+    data: book,
   });
-
 }
 
 export async function streamAssistantMessage(
@@ -73,28 +69,45 @@ export async function streamAssistantMessage(
   };
 
   try {
-    //generateImage("Tiger");
+    console.log('Sending request...');
+    console.log(payload);
 
-    //return;
-    const response = await fetch('/api/openai/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (response.ok) {
-      const chatResponse: ApiChatResponse = await response.json();
+    try {
+      const response = await axios.post('/api/chat', payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-      var book = chatResponse.book;
+      if (response.status === 200) {
+        const chatResponse = response.data;
 
-      console.log(chatResponse.book)
+        var book = chatResponse.book;
+        var message = chatResponse.message;
 
+        if (book === null || book === undefined) {
+          editMessage(conversationId, assistantMessageId, { text: message }, false);
 
-      editMessage(conversationId, assistantMessageId, { text: updatedContent }, false);
+          book.thumbnail = 'https://i.ibb.co/qjjNSzk/megh-GPT-2.png?fbclid=IwAR2OqL_Vwvpeny3NK-RZ4Sf-Xo_DRVS2U5LNMFtABdGUAzYaESHB_2-t3nc';
 
-      console.log(book);
+          book.title = message.substrings(0, 15);
 
+          book.content = message;
+        } else {
+          editMessage(conversationId, assistantMessageId, { text: book.content }, false);
+        }
 
-      
+        axios
+          .post('/api/books', book)
+          .then((response) => {
+            console.log('New book created:', response.data);
+            // Handle success or redirect to a success page
+          })
+          .catch((error) => {
+            console.error('Error creating book:', error);
+            // Handle error or display an error message
+          });
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
     }
   } catch (error: any) {
     console.error(' : fetch request error:', error);

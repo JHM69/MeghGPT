@@ -18,7 +18,7 @@ interface Book {
 
 const checks: Record<string, string> = {
   story: `Write a kids' story about below message, Always develop a JSON object, content should be in html formatted. The story will must have different sections. each section will must contain a image. each section where image will be placed in third brackets, example: [A green frog in a lake]. Note that the story should not exceed 300 words
-    Your output will must in JSON formatted: Remember to use <br> instead of \n. Example-
+    Your output will must in JSON formatted: Remember to use <br> instead of \n. You are not supposed to add any image links, You just add prompt. Example-
 
     {content: "
       Story Content started.......
@@ -37,6 +37,7 @@ const checks: Record<string, string> = {
 };
 
 export async function extractOpenaiChatInputs(req: NextRequest): Promise<ApiChatInput> {
+  console.log('Hello');
   const { api: userApi = {}, model, messages, temperature = 0.5, max_tokens = 1024 } = (await req.json()) as Partial<ApiChatInput>;
   if (!model || !messages) throw new Error('Missing required parameters: api, model, messages');
 
@@ -54,9 +55,6 @@ export async function extractOpenaiChatInputs(req: NextRequest): Promise<ApiChat
 
   return { api, model, messages, temperature, max_tokens };
 }
-
-
-
 
 const openAIHeaders = (api: OpenAIAPI.Configuration): HeadersInit => ({
   'Content-Type': 'application/json',
@@ -114,7 +112,7 @@ const openai = new OpenAIApi(configuration);
 const generateImage = async (prompt: string) => {
   try {
     console.log('Starting image generation');
-    const response = await fetch('https://hook.eu1.make.com/chcfail16s5j07k4mucj3rjp98aywfx8?prompt='+ encodeURIComponent(prompt), {
+    const response = await fetch('https://hook.eu1.make.com/chcfail16s5j07k4mucj3rjp98aywfx8?prompt=' + encodeURIComponent(prompt), {
       method: 'GET',
     });
 
@@ -140,73 +138,89 @@ export interface ApiChatResponse {
   message: OpenAIAPI.Chat.Message;
   book: Book;
 }
- 
 
 export default async function handler(req: NextRequest) {
-  const book = {}
+  const book = {};
+  console.log('Hi');
   try {
     const { api, ...rest } = await extractOpenaiChatInputs(req);
     const response = await postToOpenAI(api, '/v1/chat/completions', chatCompletionPayload(rest, false));
     const completion: OpenAIAPI.Chat.CompletionsResponse = await response.json();
 
     var text = completion.choices[0].message.content;
+    var message = text;
 
     console.log('text');
     console.log(text);
 
     //editMessage(conversationId, assistantMessageId, { text: text }, false);
 
-    const book: Book = JSON.parse(text); //
+    try {
+      const book: Book = JSON.parse(text); //
 
-    const { content } = book;
+      if (book === null) {
+        return new NextResponse(
+          JSON.stringify({
+            message,
+          }),
+        );
+      }
 
-    const imagePromptPattern = /\[(.*?)\]/g;
+      const { content } = book;
 
-    // Find all image prompt substrings in the content
-    const imagePrompts = content.match(imagePromptPattern);
+      const imagePromptPattern = /\[(.*?)\]/g;
 
-    console.log('imagePrompts');
-    console.log(imagePrompts);
+      // Find all image prompt substrings in the content
+      var imagePrompts = content.match(imagePromptPattern);
 
-    const generatedImageURLs = [];
+      if (imagePrompts?.length === 0) {
+        imagePrompts = message.match(imagePromptPattern);
+      }
 
-    if (imagePrompts) {
+      console.log('imagePrompts');
       console.log(imagePrompts);
-      for (const imagePrompt of imagePrompts) {
-        console.log('imagePrompt');
-        console.log(imagePrompt);
-        generatedImageURLs.push(await generateImage(imagePrompt));
+
+      const generatedImageURLs = [];
+
+      if (imagePrompts) {
+        console.log(imagePrompts);
+        for (const imagePrompt of imagePrompts) {
+          console.log('imagePrompt');
+          console.log(imagePrompt);
+          generatedImageURLs.push(await generateImage(imagePrompt));
+        }
       }
-    }
 
-    console.log('generatedImageURLs');
-    console.log(generatedImageURLs);
+      console.log('generatedImageURLs');
+      console.log(generatedImageURLs);
 
-    let updatedContent = content;
-    for (let i = 0; i < generatedImageURLs.length; i++) {
-      try {
-        updatedContent = updatedContent.replace(imagePrompts[i], `<img src="${generatedImageURLs[i]}" alt="${imagePrompts[i]}" />`);
-      } catch (e) {
-        console.log(e);
+      let updatedContent = content;
+      for (let i = 0; i < generatedImageURLs.length; i++) {
+        try {
+          updatedContent = updatedContent.replace(imagePrompts[i], `<img src="${generatedImageURLs[i]}" alt="${imagePrompts[i]}" />`);
+        } catch (e) {
+          console.log(e);
+        }
       }
-    }
-    book.content = updatedContent;
-    book.thumbnail = generatedImageURLs[0];
+      book.content = updatedContent;
+      book.thumbnail = generatedImageURLs[0];
 
-    console.log();
-    return new NextResponse(
-      JSON.stringify({
-        book: book,
-      } as ApiChatResponse),
-    );
+      console.log();
+      return new NextResponse(
+        JSON.stringify({
+          book: book,
+        } as ApiChatResponse),
+      );
+    } catch (e) {
+      return new NextResponse(
+        JSON.stringify({
+          message,
+        }),
+      );
+    }
   } catch (error: any) {
     console.error('Fetch request failed:', error);
-    return new NextResponse(
-      JSON.stringify({
-        book: book,
-      } as ApiChatResponse),
-    );
-   
+    return new NextResponse(JSON.stringify({ message: 'Error', book }));
   }
 }
 
