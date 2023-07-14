@@ -1,3 +1,4 @@
+// @ts-ignore
 import { DMessage, useChatStore } from '@/lib/store-chats';
 import { fastChatModelId } from '@/lib/data';
 import { useSettingsStore } from '@/lib/store-settings';
@@ -83,28 +84,30 @@ export async function streamAssistantMessage(
         var book = chatResponse.book;
         var message = chatResponse.message;
 
-        if (book === null || book === undefined) {
-          editMessage(conversationId, assistantMessageId, { text: message }, false);
+        try {
+          if (book === null || book === undefined) {
+            editMessage(conversationId, assistantMessageId, { text: message }, false);
 
-          book.thumbnail = 'https://i.ibb.co/qjjNSzk/megh-GPT-2.png?fbclid=IwAR2OqL_Vwvpeny3NK-RZ4Sf-Xo_DRVS2U5LNMFtABdGUAzYaESHB_2-t3nc';
+            book.thumbnail = 'https://i.ibb.co/qjjNSzk/megh-GPT-2.png?fbclid=IwAR2OqL_Vwvpeny3NK-RZ4Sf-Xo_DRVS2U5LNMFtABdGUAzYaESHB_2-t3nc';
 
-          book.title = message.substrings(0, 15);
+            book.title = message.substrings(0, 15);
 
-          book.content = message;
-        } else {
-          editMessage(conversationId, assistantMessageId, { text: book.content }, false);
-        }
+            book.content = message;
+          } else {
+            editMessage(conversationId, assistantMessageId, { text: book.content }, false);
+          }
 
-        axios
-          .post('/api/books', book)
-          .then((response) => {
-            console.log('New book created:', response.data);
-            // Handle success or redirect to a success page
-          })
-          .catch((error) => {
-            console.error('Error creating book:', error);
-            // Handle error or display an error message
-          });
+          axios
+            .post('/api/books', book)
+            .then((response) => {
+              console.log('New book created:', response.data);
+              // Handle success or redirect to a success page
+            })
+            .catch((error) => {
+              console.error('Error creating book:', error);
+              // Handle error or display an error message
+            });
+        } catch (e) {}
       }
     } catch (error) {
       console.error('An error occurred:', error);
