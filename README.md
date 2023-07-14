@@ -37,6 +37,62 @@ The architecture of the project follows the Next.js framework, which enables ser
 
 The front-end is implemented using Next.js, allowing for efficient rendering and responsiveness. The user interface is designed to be intuitive and user-friendly, ensuring a smooth experience throughout the storytelling process.
 
+### Usage
+
+1. Start the development server:
+   ```bash
+   npm run dev
+3. Access the application locally:
+   ```bash
+   http://localhost:3000
+
+## API Integration
+
+The project integrates several APIs to provide the desired functionalities:
+
+-**Google Cloud Vision**: Used for image analysis and processing of uploaded images.
+
+-**ChatGPT API**: Employs the GPT-3.5 model to generate story prompts based on user-uploaded files.
+
+-**DALL-E 2 API**: Utilized to create anime-style pictures that accompany the story prompts.
+
+-**Eleven Labs API**: Converts text prompts into voice recordings for an enhanced auditory experience.
+
+To integrate these APIs, obtain the necessary API keys and configure them in the project's settings.
+
+
+### Example: 
+
+
+
+
+If I sent the images to
+```bash
+var options = {
+  method: 'POST',
+  url: 'http://localhost:3000/api/chat',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer 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'
+  },
+  data: {
+    messages: [
+      {role: 'system', content: 'tour'},
+      {role: 'user', content: 'My Last Tour at Sylhet'},
+      {
+        role: 'user',
+        content: 'Image 1 contains: Scenic Picturesque Lush Serene Green Crystal-clear Tropical Vibrant Captivating Tranquil'
+      }
+    ],
+    model: 'gpt-3.5-turbo'
+  }
+};
+```
+
+
+
+
+
 ## Getting Started
 
 Follow these instructions to set up the project locally on your machine.
@@ -65,28 +121,6 @@ To run the project, ensure that you have the following installed:
 3. Obtain API keys for Google Cloud Vision, ChatGPT, DALL-E 2, and Eleven Labs.
 4. Add the API keys to the project's configuration files.
 
-### Usage
-
-1. Start the development server:
-   ```bash
-   npm run dev
-3. Access the application locally:
-   ```bash
-   http://localhost:3000
-
-## API Integration
-
-The project integrates several APIs to provide the desired functionalities:
-
--**Google Cloud Vision**: Used for image analysis and processing of uploaded images.
-
--**ChatGPT API**: Employs the GPT-3.5 model to generate story prompts based on user-uploaded files.
-
--**DALL-E 2 API**: Utilized to create anime-style pictures that accompany the story prompts.
-
--**Eleven Labs API**: Converts text prompts into voice recordings for an enhanced auditory experience.
-
-To integrate these APIs, obtain the necessary API keys and configure them in the project's settings.
 
 ## Contributing
 

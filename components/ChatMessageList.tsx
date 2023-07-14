@@ -68,6 +68,7 @@ export function ChatMessageList(props: {
           <ChatMessage
             key={'msg-' + message.id}
             message={message}
+            
             isLast={idx === filteredMessages.length - 1}
             onMessageDelete={() => handleMessageDelete(message.id)}
             onMessageEdit={(newText) => handleMessageEdit(message.id, newText)}
