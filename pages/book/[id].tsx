@@ -4,40 +4,47 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { Book } from '@prisma/client';
 import { speakText } from '@/lib/text-to-speech';
+
 const Read = () => {
   const router = useRouter();
-
-  console.log(JSON.stringify(router));
-
-  let id = router.params.id;
-
-  // var bookId = id[0];
+  const { id } = router.query;
+  const bookid = id;
 
   const [book, setBook] = useState<Book | null>(null);
 
-  console.log(id);
-
   useEffect(() => {
+    const { id } = router.query;
+
     const fetchBook = async () => {
       try {
-        const response = await axios.get(`/api/books/${id}`);
-        console.log(response.data);
-        setBook(response.data);
+        if (id) {
+          // Check if id has a value
+          const response = await axios.get(`/api/books?id=${id}`);
+          console.log(response.data);
+          setBook(response.data);
+        }
       } catch (error) {
         console.error('Error fetching book:', error);
       }
     };
 
     fetchBook();
-  }, [id]);
+  }, [id, router.query]);
 
   if (!book) {
     return <div>Book not found.</div>;
   }
+
+  function removeHtmlTags(text: string): string {
+    const clean = /<[^>]*>/g;
+    return text.replace(clean, '');
+  }
+
   const handleMenuSpeak = async (e: React.MouseEvent) => {
     e.preventDefault();
-    await speakText(book.content);
+    await speakText(removeHtmlTags(book.content));
   };
+
   return (
     <>
       <Head>
@@ -67,7 +74,7 @@ const Read = () => {
         </div>
 
         <div className="book-content">
-          <article>{book.content}</article>
+          <div dangerouslySetInnerHTML={{ __html: book.content }} />
 
           {/* More paragraphs go here */}
         </div>

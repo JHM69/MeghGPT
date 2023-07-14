@@ -8,20 +8,7 @@ const prisma = new PrismaClient();
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log(req.query);
   if (req.method === 'GET') {
-    // Get all books by likes
-    if (req.query.likes) {
-      const booksByLikes = await prisma.book.findMany({
-        where: {
-          visibility: 'true',
-        },
-        orderBy: {
-          likes: 'desc',
-        },
-      });
-      res.status(200).json(booksByLikes);
-    }
-    // Get a book by ID
-    else if (req.query.id) {
+    if (req.query.id) {
       const { id } = req.query;
       const book = await prisma.book.findUnique({
         where: { id: String(id) },
