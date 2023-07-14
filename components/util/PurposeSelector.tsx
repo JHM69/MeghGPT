@@ -132,78 +132,42 @@ export function PurposeSelector(props: { conversationId: string; runExample: (ex
 
       <Stack direction="column" sx={{ minHeight: '60vh', justifyContent: 'center', alignItems: 'center' }}>
         <Box sx={{ maxWidth: bpMaxWidth }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 2, mb: 1 }}>
-            <Typography level="body2" color="neutral">
-              Select your topic
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: 2,
+              mb: 1,
+              overflow: 'hidden',
+              whiteSpace: 'wrap',
+            }}
+          >
+            <Typography
+              variant="h6"
+              color="neutral"
+              sx={{
+                position: 'relative',
+                display: 'inline-block',
+                animation: 'typingEffect 3s steps(30)',
+                '@keyframes typingEffect': {
+                  '0%': {
+                    width: '0%',
+                  },
+                  '50%': {
+                    width: '50%',
+                  },
+                  '100%': {
+                    width: '100%',
+                  },
+                },
+              }}
+            >
+              Welcome to MeghGPT, the future of storytelling! Our platform harnesses the latest APIs and technologies to transform the way stories are crafted. Experience the power of ChatGPT for generating captivating story prompts, unleash your imagination with DALL-E 2 to create stunning anime-style pictures, and bring your words to life with text-to-voice conversion. Get ready to embark on an extraordinary storytelling journey like never before!
             </Typography>
           </Box>
 
-          <Grid container spacing={tileSpacing} sx={{ justifyContent: 'flex-start' }}>
-            {purposeIDs.map((spId) => (
-              <Grid key={spId}>
-                <Button
-                  variant={!editMode && systemPurposeId === spId ? 'solid' : 'soft'}
-                  color={!editMode && systemPurposeId === spId ? 'primary' : 'neutral'}
-                  onClick={() => !editMode && handlePurposeChanged(spId as SystemPurposeId)}
-                  sx={{
-                    flexDirection: 'column',
-                    fontWeight: 500,
-                    gap: bpTileGap,
-                    height: bpTileSize,
-                    width: bpTileSize,
-                    ...(editMode || systemPurposeId !== spId
-                      ? {
-                          boxShadow: theme.vars.shadow.md,
-                          background: theme.vars.palette.background.level1,
-                        }
-                      : {}),
-                  }}
-                >
-                  {editMode && (
-                    <Checkbox
-                      label={<Typography level="body2">show</Typography>}
-                      checked={!hiddenPurposeIDs.includes(spId)}
-                      onChange={() => toggleHiddenPurposeId(spId)}
-                      sx={{ alignSelf: 'flex-start' }}
-                    />
-                  )}
-                  <div style={{ fontSize: '2rem' }}>{SystemPurposes[spId as SystemPurposeId]?.symbol}</div>
-                  <div>{SystemPurposes[spId as SystemPurposeId]?.title}</div>
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-
-          <Typography
-            level="body2"
-            sx={{
-              mt: selectedExample ? 1 : 3,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              // justifyContent: 'center',
-              '&:hover > button': { opacity: 1 },
-            }}
-          >
-            {!selectedPurpose ? (
-              'Oops! No AI purposes found for your search.'
-            ) : selectedExample ? (
-              <>
-                <i>{selectedExample}</i>
-                <IconButton
-                  variant="plain"
-                  color="neutral"
-                  size="md"
-                  onClick={() => props.runExample(selectedExample)}
-                  sx={{ opacity: 0, transition: 'opacity 0.3s' }}
-                >
-                  💬
-                </IconButton>
-              </>
-            ) : (
-              selectedPurpose.description
-            )}
-          </Typography>
 
           {systemPurposeId === 'Custom' && (
             <Textarea
