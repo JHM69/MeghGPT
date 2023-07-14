@@ -63,9 +63,9 @@ To integrate these APIs, obtain the necessary API keys and configure them in the
 
 ### Example: 
 
-![Api Post](images/1.jpg)
-![Api Post](images/2.jpg)
-![Api Post](images/3.jpg)
+![Api Post](images/1.png)
+![Api Post](images/2.png)
+![Api Post](images/3.png)
 
 
 
