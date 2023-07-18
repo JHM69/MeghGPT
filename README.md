@@ -2,6 +2,14 @@
 
 MeghBuzz_GPT is a unique platform that combines the power of various APIs to provide an interactive storytelling experience, tour planner, and normal prompting with input, text files, images, and voice commands. Users can upload their own files, generate prompts using ChatGPT API, create anime-style pictures with DALL-E 2, convert text to voice using ElavenLabs API, and can share their creations as PDF books. This README file provides a comprehensive guide to understanding and using the project effectively.
 
+#
+[Problem Statement](https://docs.google.com/document/d/e/2PACX-1vTF8r8UbzjBHGxu2h00OakQ1vRjs85xAOOZEIB2Ea8SNOwTbW2-V-6JACmOzN2Ar4Pxj2LyIXptrng3/pub)
+#
+[Our Solution.pdf](https://drive.google.com/file/d/1SmoWLlG0quZ0yk3zojX-hxmul7veoLw6/view?usp=sharing)
+
+# Video
+[![MeghGPT Demo](http://img.youtube.com/vi/4m-h20T_Atc/0.jpg)](http://www.youtube.com/watch?v=4m-h20T_Atc "MeghGPT Demo")
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)
